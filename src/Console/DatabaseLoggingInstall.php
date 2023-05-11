@@ -3,6 +3,8 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseLoggingInstall extends Command
 {
