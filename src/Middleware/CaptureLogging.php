@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace AdityaDarma\LaravelDatabaseLogging\Middleware;
 
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 use Closure;
