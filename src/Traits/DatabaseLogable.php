@@ -12,7 +12,10 @@ trait DatabaseLogable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'create',
-                    'data' => $model
+                    'data' => [
+                        'old' => [],
+                        'new' => $model
+                    ]
                 ]);
             });
         }
@@ -22,7 +25,10 @@ trait DatabaseLogable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'update',
-                    'data' => $model->getRawOriginal()
+                    'data' => [
+                        'old' => $model->getRawOriginal(),
+                        'new' => $model
+                    ]
                 ]);
             });
         }
@@ -33,7 +39,10 @@ trait DatabaseLogable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'delete',
-                    'data' => $model->getRawOriginal()
+                    'data' => [
+                        'old' => $model->getRawOriginal(),
+                        'new' => $model
+                    ]
                 ]);
             });
         }
