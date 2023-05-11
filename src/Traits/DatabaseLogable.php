@@ -5,8 +5,8 @@ use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 
 trait DatabaseLogable
 {
-    public static function bootLoggable()
-    {
+    public static function boot() {
+        parent::boot();
         if (config('database-logging.log_events.create', false)) {
             self::created(function ($model) {
                 LoggingData::setData([

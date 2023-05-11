@@ -10,13 +10,13 @@ class LoggingData
 
     public static function setData(array $data)
     {
-        return app(LoggingData::class)->data = $data;
+        return app(LoggingData::class)->data[] = $data;
     }
 
 
     public static function store()
     {
-        if (!auth()->check() || !config('database-logging.enable_logging', true)) return;
+        if (!auth()->check() || !config('database-logging.enable_logging', true) || request()->method() == 'GET') return;
 
         $auth = auth()->user();
         return DatabaseLogging::create([
