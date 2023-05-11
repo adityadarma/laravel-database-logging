@@ -19,6 +19,8 @@ class DatabaseLogging extends Model
      * @var array
      */
     protected $fillable = [
+        'loggable_id',
+        'loggable_type',
         'url',
         'agent',
         'ip_address',
