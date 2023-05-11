@@ -41,7 +41,7 @@ trait DatabaseLogable
                     'type' => 'delete',
                     'data' => [
                         'old' => $model->getRawOriginal(),
-                        'new' => $model
+                        'new' => []
                     ]
                 ]);
             });

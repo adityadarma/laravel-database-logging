@@ -6,20 +6,20 @@ use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 
 class LoggingData
 {
-    protected $data = [];
+    protected array $data = [];
 
-    public static function setData(array $data)
+    public static function setData(array $data): array
     {
-        return app(LoggingData::class)->data[] = $data;
+        return self::$data[] = $data;
     }
 
 
-    public static function store()
+    public static function store(): mixed
     {
         if (!auth()->check() || !config('database-logging.enable_logging', true) || request()->method() == 'GET') return;
 
         $auth = auth()->user();
-        return DatabaseLogging::create([
+        DatabaseLogging::create([
             'loggable_id' => $auth->getKey(),
             'loggable_type' => $auth->getMorphClass(),
             'url' => request()->fullUrl(),
