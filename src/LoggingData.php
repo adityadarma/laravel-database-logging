@@ -6,11 +6,11 @@ use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 
 class LoggingData
 {
-    protected array $data = [];
+    private static $data = [];
 
-    public static function setData(array $data): array
+    public static function setData(array $data): void
     {
-        return self::$data[] = $data;
+        self::$data[] = $data;
     }
 
 
@@ -25,7 +25,7 @@ class LoggingData
                 'agent' => request()->userAgent(),
                 'ip_address' => request()->ip(),
                 'method' => request()->method(),
-                'data' => json_encode(app(LoggingData::class)->data)
+                'data' => json_encode(self::$data)
             ]);
         }
     }
