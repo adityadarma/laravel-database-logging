@@ -16,7 +16,7 @@ class LoggingData
 
     public static function store(): void
     {
-        if (auth()->check() || config('database-logging.enable_logging', true) || request()->method() != 'GET'){
+        if (auth()->check() && config('database-logging.enable_logging', true) && request()->method() != 'GET'){
             $auth = auth()->user();
             DatabaseLogging::create([
                 'loggable_id' => $auth->getKey(),
