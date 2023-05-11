@@ -44,6 +44,10 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
             'database-logging'
         );
 
+        $this->app->singleton(LoggingData::class, function($app){
+            return new LoggingData();
+        });
+
         $this->commands([DatabaseLoggingInstall::class]);
     }
 }

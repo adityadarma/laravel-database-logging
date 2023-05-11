@@ -22,7 +22,7 @@ class DatabaseLogging extends Model
         'url',
         'agent',
         'ip_address',
-        'log_type',
+        'method',
         'data'
     ];
 

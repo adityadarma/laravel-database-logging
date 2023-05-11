@@ -4,7 +4,7 @@ return [
     'enable_logging' => true,
     'log_events' => [
         'create'     => true,
-        'edit'       => true,
+        'update'     => true,
         'delete'     => true,
     ]
 ];
