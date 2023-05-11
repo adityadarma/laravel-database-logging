@@ -2,7 +2,7 @@
 
 namespace AdityaDarma\LaravelDatabaseLogging;
 
-use AdityaDarma\DatabaseLogging\Models\DatabaseLogging;
+use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 
 class LoggingData
 {
@@ -18,8 +18,10 @@ class LoggingData
     {
         if (!auth()->check() || !config('database-logging.enable_logging', true)) return;
 
-
-        DatabaseLogging::create([
+        $auth = auth()->user();
+        return DatabaseLogging::create([
+            'loggable_id' => $auth->getKey(),
+            'loggable_type' => $auth->getMorphClass(),
             'url' => request()->fullUrl(),
             'agent' => request()->userAgent(),
             'ip_address' => request()->ip(),

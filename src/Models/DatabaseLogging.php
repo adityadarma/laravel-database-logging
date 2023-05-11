@@ -1,6 +1,6 @@
 <?php
 
-namespace AdityaDarma\DatabaseLogging\Models;
+namespace AdityaDarma\LaravelDatabaseLogging\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
