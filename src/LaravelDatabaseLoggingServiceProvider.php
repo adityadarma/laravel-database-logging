@@ -7,8 +7,8 @@ use Illuminate\Support\ServiceProvider;
 
 class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
 {
-    const CONFIG_PATH = __DIR__ . '/config/database-logging.php';
-    const MIGRATION_PATH = __DIR__ . '/migrations';
+    const CONFIG_PATH = __DIR__ . '/../config/database-logging.php';
+    const MIGRATION_PATH = __DIR__ . '/../migrations';
 
 
     /**

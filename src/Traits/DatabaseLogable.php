@@ -12,10 +12,7 @@ trait DatabaseLogable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'create',
-                    'data' => [
-                        'old' => [],
-                        'new' => $model
-                    ]
+                    'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'create')
                 ]);
             });
         }
@@ -25,26 +22,54 @@ trait DatabaseLogable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'update',
-                    'data' => [
-                        'old' => $model->getRawOriginal(),
-                        'new' => $model
-                    ]
+                    'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'update')
                 ]);
             });
         }
-
 
         if (config('database-logging.log_events.delete', false)) {
             self::deleted(function ($model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'delete',
-                    'data' => [
-                        'old' => $model->getRawOriginal(),
-                        'new' => []
-                    ]
+                    'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'delete')
                 ]);
             });
         }
+    }
+
+    public static function findDifferentData(array $old, array $new, string $type)
+    {
+        $columns = count($old) ? array_keys($old) : array_keys($new);
+        $result = [];
+        $excludeColumn = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+        foreach ($columns as $column) {
+            if (!in_array($column, $excludeColumn)) {
+                if ($type == 'create') {
+                    $result[] = [
+                        'column' => $column,
+                        'old' => null,
+                        'new' => $new[$column]
+                    ];
+                } else if ($type == 'update') {
+                    if ($old[$column] != $new[$column]) {
+                        $result[] = [
+                            'column' => $column,
+                            'old' => $old[$column],
+                            'new' => $new[$column]
+                        ];
+                    }
+                } else if ($type == 'delete') {
+                    $result[] = [
+                        'column' => $column,
+                        'old' => $old[$column],
+                        'new' => null
+                    ];
+                }
+            }
+        }
+
+        return $result;
     }
 }

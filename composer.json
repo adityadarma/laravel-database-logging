@@ -2,6 +2,7 @@
     "name": "adityadarma/laravel-database-logging",
     "description": "Logging activities database for laravel",
     "homepage": "https://github.com/adityadarma/laravel-database-logging",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
