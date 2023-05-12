@@ -9,6 +9,8 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
 {
     const CONFIG_PATH = __DIR__ . '/../config/database-logging.php';
     const MIGRATION_PATH = __DIR__ . '/../migrations';
+    const ROUTE_PATH = __DIR__ . '/../routes';
+    const VIEW_PATH = __DIR__ . '/../views';
 
 
     /**
@@ -35,6 +37,9 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publish();
+
+        $this->loadRoutesFrom(self::ROUTE_PATH . '/web.php');
+        $this->loadViewsFrom(self::VIEW_PATH, 'LaravelDatabaseLogging');
     }
 
     public function register()

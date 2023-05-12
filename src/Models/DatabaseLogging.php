@@ -33,8 +33,37 @@ class DatabaseLogging extends Model
      *
      * @var array
      */
-    protected $casts = [
-        'created_at' => 'datetime',
+    protected $dates = [
+        'created_at',
     ];
 
+    protected $appends = [
+        'name',
+        'date_create'
+    ];
+
+    public function loggable()
+    {
+        return $this->morphTo('loggable');
+    }
+
+    public function getNameAttribute()
+    {
+        foreach (config('database-logging.model') as $model => $name) {
+            if ($this->loggable_type == $model) {
+                return $this->loggable->$name;
+            }
+        }
+        return '-';
+    }
+
+    public function getDateCreateAttribute()
+    {
+        return $this->created_at->format('d-m-Y H:i:s');
+    }
+
+    public function getDataAttribute()
+    {
+        return json_decode($this->attributes['data']);
+    }
 }
