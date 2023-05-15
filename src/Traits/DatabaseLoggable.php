@@ -3,7 +3,7 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Traits;
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 
-trait DatabaseLogable
+trait DatabaseLoggable
 {
     public static function boot() {
         parent::boot();
