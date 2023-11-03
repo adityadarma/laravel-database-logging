@@ -78,4 +78,19 @@ class DatabaseLogging extends Model
     {
         return json_decode($this->attributes['response'], true);
     }
+
+    public function getDataObjectAttribute()
+    {
+        return json_decode($this->attributes['data']);
+    }
+
+    public function getRequestObjectAttribute()
+    {
+        return json_decode($this->attributes['request']);
+    }
+
+    public function getResponseObjectAttribute()
+    {
+        return json_decode($this->attributes['response']);
+    }
 }

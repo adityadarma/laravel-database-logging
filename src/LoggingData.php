@@ -35,7 +35,7 @@ class LoggingData
                     'method' => request()->method(),
                     'data' => json_encode(self::$data),
                     'request' => json_encode($request->except(['_token','_method'])),
-                    'response' => json_encode($response),
+                    'response' => $response->getContent(),
                 ]);
             }
         }

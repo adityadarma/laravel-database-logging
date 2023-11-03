@@ -12,6 +12,7 @@ trait DatabaseLoggable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'create',
+                    'id' => $model->id,
                     'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'create')
                 ]);
             });
@@ -22,6 +23,7 @@ trait DatabaseLoggable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'update',
+                    'id' => $model->id,
                     'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'update')
                 ]);
             });
@@ -32,6 +34,7 @@ trait DatabaseLoggable
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'type' => 'delete',
+                    'id' => $model->id,
                     'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'delete')
                 ]);
             });

@@ -16,5 +16,5 @@ return [
     ],
     'route_path' => 'database-logging',
     'assets_path' => 'assets/database-logging',
-    'duration' => 10, // days
+    'duration' => 30, // days
 ];
