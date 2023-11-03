@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'enable_logging' => true,
+    'enable_logging' => env('ENABLE_LOGGING', true),
     'middleware' => [
         'web',
         'auth'
@@ -15,5 +15,6 @@ return [
         'delete'     => true,
     ],
     'route_path' => 'database-logging',
-    'duration' => 10,
+    'assets_path' => 'assets/database-logging',
+    'duration' => 10, // days
 ];

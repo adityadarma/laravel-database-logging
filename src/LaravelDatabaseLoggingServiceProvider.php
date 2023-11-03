@@ -3,6 +3,7 @@
 namespace AdityaDarma\LaravelDatabaseLogging;
 
 use AdityaDarma\LaravelDatabaseLogging\Console\DatabaseLoggingInstall;
+use AdityaDarma\LaravelDatabaseLogging\Middleware\CaptureLogging;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
@@ -11,6 +12,7 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
     const MIGRATION_PATH = __DIR__ . '/../migrations';
     const ROUTE_PATH = __DIR__ . '/../routes';
     const VIEW_PATH = __DIR__ . '/../views';
+    const PUBLIC_PATH = __DIR__ . '/../public';
 
 
     /**
@@ -27,6 +29,10 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
         $this->publishes([
             self::MIGRATION_PATH => database_path('migrations')
         ], 'migrations');
+
+        $this->publishes([
+            self::PUBLIC_PATH => public_path(config('database-logging.assets_path'))
+        ], 'assets');
     }
 
     /**
@@ -49,10 +55,12 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
             'database-logging'
         );
 
-        $this->app->singleton(LoggingData::class, function($app){
+        $this->app->singleton(LoggingData::class, function() {
             return new LoggingData();
         });
 
         $this->commands([DatabaseLoggingInstall::class]);
+
+        app('router')->aliasMiddleware('capture-logging', CaptureLogging::class);
     }
 }

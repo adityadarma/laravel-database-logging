@@ -13,7 +13,7 @@ class CaptureLogging
     {
         $response = $next($request);
 
-        LoggingData::store();
+        LoggingData::store($request, $response);
 
         return $response;
     }

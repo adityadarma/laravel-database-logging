@@ -4,12 +4,13 @@ namespace AdityaDarma\LaravelDatabaseLogging\Controllers;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class DatabaseLoggingController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        return DatabaseLogging::with(['loggable'])->paginate(1);
+        $data['logs'] =  DatabaseLogging::with(['loggable'])->paginate(10);
+
+        return view('LaravelDatabaseLogging::index', $data);
     }
 }

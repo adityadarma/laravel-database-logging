@@ -6,5 +6,7 @@ Route::group([
     'namespace' => '\AdityaDarma\LaravelDatabaseLogging\Controllers',
     'middleware' => config('database-logging.middleware')
 ], function () {
-    Route::match(['get', 'post'], config('database-logging.route_path'), 'DatabaseLoggingController@index');
+    Route::prefix(config('database-logging.route_path'))->group(function () {
+        Route::get('/', 'DatabaseLoggingController@index');
+    });
 });

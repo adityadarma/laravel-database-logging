@@ -21,6 +21,8 @@ class CreateDatabaseLoggingTable extends Migration
             $table->ipAddress('ip_address')->nullable();
             $table->string('method',10);
             $table->longText('data');
+            $table->longText('request');
+            $table->longText('response');
             $table->timestamps();
         });
     }

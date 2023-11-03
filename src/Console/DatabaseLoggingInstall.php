@@ -35,7 +35,7 @@ class DatabaseLoggingInstall extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
@@ -69,13 +69,24 @@ class DatabaseLoggingInstall extends Command
             $this->info("migration published");
         }
 
-        $this->line('-----------------------------');
-        if (!Schema::hasTable('database_loggings')) {
-            $this->call('migrate');
+        //assets
+        if (File::exists(public_path(config('database-logging.assets_path')))) {
+            $confirm = $this->confirm("assets file already exist. Do you want to overwrite?");
+            if ($confirm) {
+                $this->publishAssets();
+                $this->info("assets overwrite finished");
+            } else {
+                $this->info("skipped assets publish");
+            }
         } else {
-            $this->error('logs table already exist in your database. migration not run successfully');
+            $this->publishAssets();
+            $this->info("assets published");
         }
 
+        $this->line('-----------------------------');
+        $this->call('migrate', [
+            '--force'    => true
+        ]);
     }
 
     private function publishConfig()
@@ -92,6 +103,15 @@ class DatabaseLoggingInstall extends Command
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
             '--tag'      => 'migrations',
+            '--force'    => true
+        ]);
+    }
+
+    private function publishAssets()
+    {
+        $this->call('vendor:publish', [
+            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--tag'      => 'assets',
             '--force'    => true
         ]);
     }

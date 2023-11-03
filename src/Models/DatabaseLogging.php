@@ -25,7 +25,9 @@ class DatabaseLogging extends Model
         'agent',
         'ip_address',
         'method',
-        'data'
+        'data',
+        'request',
+        'response',
     ];
 
     /**
@@ -64,6 +66,16 @@ class DatabaseLogging extends Model
 
     public function getDataAttribute()
     {
-        return json_decode($this->attributes['data']);
+        return json_decode($this->attributes['data'], true);
+    }
+
+    public function getRequestAttribute()
+    {
+        return json_decode($this->attributes['request'], true);
+    }
+
+    public function getResponseAttribute()
+    {
+        return json_decode($this->attributes['response'], true);
     }
 }

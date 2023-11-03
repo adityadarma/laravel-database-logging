@@ -3,6 +3,9 @@
 namespace AdityaDarma\LaravelDatabaseLogging;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class LoggingData
 {
@@ -14,7 +17,7 @@ class LoggingData
     }
 
 
-    public static function store(): void
+    public static function store(Request $request, $response): void
     {
         if (
             auth()->check()
@@ -30,7 +33,9 @@ class LoggingData
                     'agent' => request()->userAgent(),
                     'ip_address' => request()->ip(),
                     'method' => request()->method(),
-                    'data' => json_encode(self::$data)
+                    'data' => json_encode(self::$data),
+                    'request' => json_encode($request->except(['_token','_method'])),
+                    'response' => json_encode($response),
                 ]);
             }
         }
