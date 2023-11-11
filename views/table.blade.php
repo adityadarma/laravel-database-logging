@@ -12,7 +12,7 @@
                             <td class="fs-4"><b>Table :</b> {{ $data->table }}</td>
                         </tr>
                         <tr>
-                            <td><b>Type :</b> {{ $data->type }}</td>
+                            <td><b>Event :</b> {{ $data->event }}</td>
                         </tr>
                         <tr>
                             <td><b>ID :</b> {{ $data->id }}</td>

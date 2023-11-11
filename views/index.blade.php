@@ -38,9 +38,8 @@
                                     <th scope="row">{{ $key+1 }}</th>
                                     <td>{{ $log->name }}</td>
                                     <td>
-                                        <b>IP:</b> {{ $log->ip_address }}<br>
-                                        <b>URL:</b> {{ $log->url }}<br>
-                                        <b>Agent:</b> {{ $log->agent }}<br>
+                                        <b>Host:</b> {{ $log->host }}<br>
+                                        <b>Path:</b> {{ $log->path }}<br>
                                     </td>
                                     <td>{{ $log->method }}</td>
                                     <td>{{ $log->date_create }}</td>

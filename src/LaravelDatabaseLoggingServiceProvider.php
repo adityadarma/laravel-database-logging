@@ -21,7 +21,7 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    private function publish()
+    private function publish(): void
     {
         $this->publishes([
             self::CONFIG_PATH => config_path('database-logging.php')
@@ -41,7 +41,7 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->publish();
 
@@ -49,7 +49,12 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
         $this->loadViewsFrom(self::VIEW_PATH, 'LaravelDatabaseLogging');
     }
 
-    public function register()
+    /**
+     * Register services.
+     *
+     * @return void
+     */
+    public function register(): void
     {
         $this->mergeConfigFrom(
             self::CONFIG_PATH,

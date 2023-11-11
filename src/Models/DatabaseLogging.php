@@ -21,7 +21,8 @@ class DatabaseLogging extends Model
     protected $fillable = [
         'loggable_id',
         'loggable_type',
-        'url',
+        'host',
+        'path',
         'agent',
         'ip_address',
         'method',

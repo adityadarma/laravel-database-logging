@@ -16,9 +16,10 @@ class CreateDatabaseLoggingsTable extends Migration
         Schema::create('database_loggings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->morphs('loggable');
-            $table->text('url');
+            $table->string('host');
+            $table->text('path');
             $table->text('agent')->nullable();
-            $table->ipAddress('ip_address')->nullable();
+            $table->ipAddress()->nullable();
             $table->string('method',10);
             $table->longText('data');
             $table->longText('request');

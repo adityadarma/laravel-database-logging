@@ -1,47 +1,49 @@
 <?php
 
 namespace AdityaDarma\LaravelDatabaseLogging\Traits;
+
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
+use Illuminate\Database\Eloquent\Model;
 
 trait DatabaseLoggable
 {
     public static function boot() {
         parent::boot();
         if (config('database-logging.log_events.create', false)) {
-            self::created(function ($model) {
+            self::created(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
-                    'type' => 'create',
-                    'id' => $model->id,
-                    'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'create')
+                    'id' => $model->getKey(),
+                    'event' => 'create',
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'create')
                 ]);
             });
         }
 
         if (config('database-logging.log_events.update', false)) {
-            self::updated(function ($model) {
+            self::updated(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
-                    'type' => 'update',
-                    'id' => $model->id,
-                    'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'update')
+                    'id' => $model->getKey(),
+                    'event' => 'update',
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'update')
                 ]);
             });
         }
 
         if (config('database-logging.log_events.delete', false)) {
-            self::deleted(function ($model) {
+            self::deleted(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
-                    'type' => 'delete',
-                    'id' => $model->id,
-                    'data' => self::findDifferentData($model->getRawOriginal(), $model->toArray(), 'delete')
+                    'id' => $model->getKey(),
+                    'event' => 'delete',
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'delete')
                 ]);
             });
         }
     }
 
-    public static function findDifferentData(array $old, array $new, string $type)
+    public static function getDifferentData(array $old, array $new, string $event): array
     {
         $columns = count($old) ? array_keys($old) : array_keys($new);
         $result = [];
@@ -49,13 +51,14 @@ trait DatabaseLoggable
 
         foreach ($columns as $column) {
             if (!in_array($column, $excludeColumn)) {
-                if ($type == 'create') {
+                if ($event == 'create') {
                     $result[] = [
                         'column' => $column,
                         'old' => null,
                         'new' => $new[$column]
                     ];
-                } else if ($type == 'update') {
+                }
+                else if ($event == 'update') {
                     if ($old[$column] != $new[$column]) {
                         $result[] = [
                             'column' => $column,
@@ -63,7 +66,8 @@ trait DatabaseLoggable
                             'new' => $new[$column]
                         ];
                     }
-                } else if ($type == 'delete') {
+                }
+                else if ($event == 'delete') {
                     $result[] = [
                         'column' => $column,
                         'old' => $old[$column],

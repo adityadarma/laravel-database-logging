@@ -3,20 +3,30 @@
 namespace AdityaDarma\LaravelDatabaseLogging;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
-use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class LoggingData
 {
-    private static $data = [];
+    private static array $data = [];
 
+    /**
+     * Save data to array
+     *
+     * @param array $data
+     * @return void
+     */
     public static function setData(array $data): void
     {
         self::$data[] = $data;
     }
 
-
+    /**
+     * Store data to database
+     *
+     * @param Request $request
+     * @param $response
+     * @return void
+     */
     public static function store(Request $request, $response): void
     {
         if (
@@ -29,7 +39,8 @@ class LoggingData
                 DatabaseLogging::create([
                     'loggable_id' => $auth->getKey(),
                     'loggable_type' => $auth->getMorphClass(),
-                    'url' => request()->fullUrl(),
+                    'host' => request()->host(),
+                    'path' => request()->path(),
                     'agent' => request()->userAgent(),
                     'ip_address' => request()->ip(),
                     'method' => request()->method(),
