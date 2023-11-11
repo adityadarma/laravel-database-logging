@@ -19,7 +19,7 @@ class CreateDatabaseLoggingsTable extends Migration
             $table->string('host');
             $table->text('path');
             $table->text('agent')->nullable();
-            $table->ipAddress()->nullable();
+            $table->ipAddress('ip_address')->nullable();
             $table->string('method',10);
             $table->longText('data');
             $table->longText('request');
