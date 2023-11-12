@@ -37,7 +37,7 @@ class DatabaseLoggingInstall extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         //config
         if (File::exists(config_path('database-logging.php'))) {
@@ -89,7 +89,7 @@ class DatabaseLoggingInstall extends Command
         ]);
     }
 
-    private function publishConfig()
+    private function publishConfig(): void
     {
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
@@ -98,7 +98,7 @@ class DatabaseLoggingInstall extends Command
         ]);
     }
 
-    private function publishMigration()
+    private function publishMigration(): void
     {
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
@@ -107,7 +107,7 @@ class DatabaseLoggingInstall extends Command
         ]);
     }
 
-    private function publishAssets()
+    private function publishAssets(): void
     {
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",

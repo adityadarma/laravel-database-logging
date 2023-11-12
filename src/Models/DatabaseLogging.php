@@ -3,6 +3,7 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class DatabaseLogging extends Model
 {
@@ -36,7 +37,7 @@ class DatabaseLogging extends Model
      *
      * @var array
      */
-    protected $dates = [
+    protected array $dates = [
         'created_at',
     ];
 
@@ -45,7 +46,7 @@ class DatabaseLogging extends Model
         'date_create'
     ];
 
-    public function loggable()
+    public function loggable(): MorphTo
     {
         return $this->morphTo('loggable');
     }

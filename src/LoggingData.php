@@ -39,7 +39,7 @@ class LoggingData
                 DatabaseLogging::create([
                     'loggable_id' => $auth->getKey(),
                     'loggable_type' => $auth->getMorphClass(),
-                    'host' => request()->host(),
+                    'host' => request()->getHost(),
                     'path' => request()->path(),
                     'agent' => request()->userAgent(),
                     'ip_address' => request()->ip(),

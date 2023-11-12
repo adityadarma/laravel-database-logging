@@ -38,7 +38,7 @@ class DatabaseLoggingPurge extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $duration = config('database-logging.duration');
         if ($duration) {

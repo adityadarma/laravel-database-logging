@@ -21,20 +21,22 @@
                 </table>
                 <table class="w-100">
                     <thead class="thead-dark">
-                    <tr>
-                        <th>Column</th>
-                        <th style="width: 35%">Old</th>
-                        <th style="width: 35%">New</th>
-                    </tr>
+                        <tr>
+                            <th>Column</th>
+                            <th style="width: 35%">Old</th>
+                            <th style="width: 35%">New</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    @foreach($data->data as $column)
-                        <tr>
-                            <td>{{ $column->column }}</td>
-                            <td>{{ $column->old }}</td>
-                            <td>{{ $column->new }}</td>
-                        </tr>
-                    @endforeach
+                    @if($data->data)
+                        @foreach($data->data as $column)
+                            <tr>
+                                <td>{{ $column->column }}</td>
+                                <td>{{ $column->old }}</td>
+                                <td>{{ $column->new }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
                     </tbody>
                 </table>
             </div>
@@ -56,12 +58,14 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach($log->requestObject as $key => $value)
-                <tr>
-                    <td class="font-weight-bold">{{ $key }}</td>
-                    <td colspan="3">{{ is_array($value) ? print_r($value, true) : $value }}</td>
-                </tr>
-            @endforeach
+            @if($log->requestObject)
+                @foreach($log->requestObject as $key => $value)
+                    <tr>
+                        <td class="font-weight-bold">{{ $key }}</td>
+                        <td colspan="3">{!! is_array($value) || is_object($value) ? "<pre>". print_r($value, true) ."</pre>" : $value !!}</td>
+                    </tr>
+                @endforeach
+            @endif
             </tbody>
         </table>
     </div>
@@ -75,18 +79,20 @@
     <div class="col-md-12">
         <table class="w-100 table-borderless">
             <thead class="thead-dark">
-            <tr>
-                <th class="w-25">Name</th>
-                <th>Value</th>
-            </tr>
+                <tr>
+                    <th class="w-25">Name</th>
+                    <th>Value</th>
+                </tr>
             </thead>
             <tbody>
-            @foreach($log->responseObject as $name => $value)
-                <tr>
-                    <td class="font-weight-bold">{{ $name }}</td>
-                    <td colspan="3">{{ $value }}</td>
-                </tr>
-            @endforeach
+            @if($log->responseObject)
+                @foreach($log->responseObject as $name => $value)
+                    <tr>
+                        <td class="font-weight-bold">{{ $name }}</td>
+                        <td colspan="3">{!! is_array($value) || is_object($value) ? "<pre>". print_r($value, true) ."</pre>" : $value !!}</td>
+                    </tr>
+                @endforeach
+            @endif
             </tbody>
         </table>
     </div>
