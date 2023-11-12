@@ -37,7 +37,7 @@ class DatabaseLogging extends Model
      *
      * @var array
      */
-    protected array $dates = [
+    protected $dates = [
         'created_at',
     ];
 
