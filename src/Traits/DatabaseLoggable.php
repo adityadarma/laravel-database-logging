@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 trait DatabaseLoggable
 {
-    public static function boot() {
+    public static function boot(): void
+    {
         parent::boot();
         if (config('database-logging.log_events.create', false)) {
             self::created(function (Model $model) {

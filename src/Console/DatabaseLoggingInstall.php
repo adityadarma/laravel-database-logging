@@ -37,7 +37,7 @@ class DatabaseLoggingInstall extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         //config
         if (File::exists(config_path('database-logging.php'))) {
@@ -53,6 +53,7 @@ class DatabaseLoggingInstall extends Command
             $this->info("config published");
         }
 
+        $this->line('-----------------------------');
 
         //migration
         $migrationFile = "2023_01_01_000001_create_database_logging_table.php";
@@ -69,6 +70,8 @@ class DatabaseLoggingInstall extends Command
             $this->info("migration published");
         }
 
+        $this->line('-----------------------------');
+
         //assets
         if (File::exists(public_path(config('database-logging.assets_path')))) {
             $confirm = $this->confirm("assets file already exist. Do you want to overwrite?");
@@ -82,14 +85,9 @@ class DatabaseLoggingInstall extends Command
             $this->publishAssets();
             $this->info("assets published");
         }
-
-        $this->line('-----------------------------');
-        $this->call('migrate', [
-            '--force'    => true
-        ]);
     }
 
-    private function publishConfig()
+    private function publishConfig(): void
     {
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
@@ -98,7 +96,7 @@ class DatabaseLoggingInstall extends Command
         ]);
     }
 
-    private function publishMigration()
+    private function publishMigration(): void
     {
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
@@ -107,7 +105,7 @@ class DatabaseLoggingInstall extends Command
         ]);
     }
 
-    private function publishAssets()
+    private function publishAssets(): void
     {
         $this->call('vendor:publish', [
             '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
