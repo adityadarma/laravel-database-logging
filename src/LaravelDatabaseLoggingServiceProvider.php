@@ -10,11 +10,11 @@ use Illuminate\Support\ServiceProvider;
 
 class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
 {
-    const CONFIG_PATH = __DIR__ . '/../config/database-logging.php';
-    const MIGRATION_PATH = __DIR__ . '/../migrations';
-    const ROUTE_PATH = __DIR__ . '/../routes';
-    const VIEW_PATH = __DIR__ . '/../views';
-    const PUBLIC_PATH = __DIR__ . '/../public';
+    public const CONFIG_PATH = __DIR__ . '/../config/database-logging.php';
+    public const MIGRATION_PATH = __DIR__ . '/../migrations';
+    public const ROUTE_PATH = __DIR__ . '/../routes';
+    public const VIEW_PATH = __DIR__ . '/../views';
+    public const PUBLIC_PATH = __DIR__ . '/../public';
 
 
     /**

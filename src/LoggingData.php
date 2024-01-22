@@ -4,6 +4,8 @@ namespace AdityaDarma\LaravelDatabaseLogging;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use JsonException;
 
 class LoggingData
 {
@@ -24,31 +26,32 @@ class LoggingData
      * Store data to database
      *
      * @param Request $request
-     * @param $response
+     * @param Response $response
+     * @param string|null $guard
      * @return void
+     * @throws JsonException
      */
-    public static function store(Request $request, $response): void
+    public static function store(Request $request, Response $response, ?string $guard = null): void
     {
         if (
-            auth()->check()
+            auth($guard)->check()
             && config('database-logging.enable_logging', true)
-            && request()->method() != 'GET'
+            && $request->method() !== 'GET'
+            && count(self::$data)
         ){
-            if(count(self::$data)) {
-                $auth = auth()->user();
-                DatabaseLogging::create([
-                    'loggable_id' => $auth->getKey(),
-                    'loggable_type' => $auth->getMorphClass(),
-                    'host' => request()->host(),
-                    'path' => request()->path(),
-                    'agent' => request()->userAgent(),
-                    'ip_address' => request()->ip(),
-                    'method' => request()->method(),
-                    'data' => json_encode(self::$data),
-                    'request' => json_encode($request->except(['_token','_method'])),
-                    'response' => $response->getContent(),
-                ]);
-            }
+            $user = auth($guard)->user();
+            DatabaseLogging::create([
+                'loggable_id' => $user->getKey(),
+                'loggable_type' => $user->getMorphClass(),
+                'host' => $request->host(),
+                'path' => $request->path(),
+                'agent' => $request->userAgent(),
+                'ip_address' => $request->ip(),
+                'method' => $request->method(),
+                'data' => json_encode(self::$data, JSON_THROW_ON_ERROR),
+                'request' => json_encode($request->except(['_token', '_method']), JSON_THROW_ON_ERROR),
+                'response' => $response->getContent(),
+            ]);
         }
     }
 }
