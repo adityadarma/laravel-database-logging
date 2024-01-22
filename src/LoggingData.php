@@ -26,12 +26,12 @@ class LoggingData
      * Store data to database
      *
      * @param Request $request
-     * @param Response $response
+     * @param mixed $response
      * @param string|null $guard
      * @return void
      * @throws JsonException
      */
-    public static function store(Request $request, Response $response, ?string $guard = null): void
+    public static function store(Request $request, mixed $response, ?string $guard = null): void
     {
         if (config('database-logging.enable_logging', true) && count(self::$data)){
             $user = auth($guard)->user();

@@ -4,7 +4,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
+use AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider;
 
 class DatabaseLoggingInstall extends Command
 {
@@ -90,7 +90,7 @@ class DatabaseLoggingInstall extends Command
     private function publishConfig(): void
     {
         $this->call('vendor:publish', [
-            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'config',
             '--force'    => true
         ]);
@@ -99,7 +99,7 @@ class DatabaseLoggingInstall extends Command
     private function publishMigration(): void
     {
         $this->call('vendor:publish', [
-            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'migrations',
             '--force'    => true
         ]);
@@ -108,7 +108,7 @@ class DatabaseLoggingInstall extends Command
     private function publishAssets(): void
     {
         $this->call('vendor:publish', [
-            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'assets',
             '--force'    => true
         ]);
