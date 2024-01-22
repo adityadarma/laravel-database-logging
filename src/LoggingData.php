@@ -34,10 +34,10 @@ class LoggingData
     public static function store(Request $request, mixed $response, ?string $guard = null): void
     {
         if (config('database-logging.enable_logging', true) && count(self::$data)){
-            $user = auth($guard)->user();
+            $guard = self::getGuard();
             DatabaseLogging::create([
-                'loggable_id' => auth($guard)->check() ? $user->getKey() : null,
-                'loggable_type' => auth($guard)->check() ? $user->getMorphClass() : null,
+                'loggable_id' => $guard ? auth($guard)->user()->getKey() : null,
+                'loggable_type' => $guard ? auth($guard)->user()->getMorphClass() : null,
                 'host' => $request->host(),
                 'path' => $request->path(),
                 'agent' => $request->userAgent(),
@@ -48,5 +48,22 @@ class LoggingData
                 'response' => $response->getContent(),
             ]);
         }
+    }
+
+    /**
+     * Get guard login
+     *
+     * @return string|null
+     */
+    public static function getGuard(): string|null
+    {
+        $guards = array_keys(config('auth.guards'));
+        foreach($guards as $guard){
+            if(auth()->guard($guard)->check()){
+                return $guard;
+            }
+        }
+
+        return null;
     }
 }
