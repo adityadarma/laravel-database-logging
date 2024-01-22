@@ -70,7 +70,7 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
         $this->commands([DatabaseLoggingInstall::class]);
         $this->commands([DatabaseLoggingPurge::class]);
 
-        $this->app->make('route')->aliasMiddleware(
+        $this->app->make('router')->aliasMiddleware(
                 'capture-logging',
                 CaptureLogging::class
             );
