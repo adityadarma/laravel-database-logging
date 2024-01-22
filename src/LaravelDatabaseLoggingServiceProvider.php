@@ -5,6 +5,7 @@ namespace AdityaDarma\LaravelDatabaseLogging;
 use AdityaDarma\LaravelDatabaseLogging\Console\DatabaseLoggingInstall;
 use AdityaDarma\LaravelDatabaseLogging\Console\DatabaseLoggingPurge;
 use AdityaDarma\LaravelDatabaseLogging\Middleware\CaptureLogging;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
@@ -53,6 +54,7 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
      * Register services.
      *
      * @return void
+     * @throws BindingResolutionException
      */
     public function register(): void
     {
@@ -68,6 +70,9 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
         $this->commands([DatabaseLoggingInstall::class]);
         $this->commands([DatabaseLoggingPurge::class]);
 
-        app('router')->aliasMiddleware('capture-logging', CaptureLogging::class);
+        $this->app->make('route')->aliasMiddleware(
+                'capture-logging',
+                CaptureLogging::class
+            );
     }
 }
