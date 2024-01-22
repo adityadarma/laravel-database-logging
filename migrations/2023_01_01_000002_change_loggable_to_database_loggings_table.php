@@ -14,7 +14,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('database_loggings', function (Blueprint $table) {
-            $table->nullableMorphs('loggable');
+            $table->string('loggable_type')->nullable()->change();
+            $table->unsignedBigInteger('loggable_id')->nullable()->change();
         });
     }
 
@@ -26,7 +27,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('database_loggings', function (Blueprint $table) {
-            $table->morphs('loggable');
+            $table->string('loggable_type')->change();
+            $table->unsignedBigInteger('loggable_id')->change();
         });
     }
 };

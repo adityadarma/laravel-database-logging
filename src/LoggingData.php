@@ -33,16 +33,11 @@ class LoggingData
      */
     public static function store(Request $request, Response $response, ?string $guard = null): void
     {
-        if (
-            auth($guard)->check()
-            && config('database-logging.enable_logging', true)
-            && $request->method() !== 'GET'
-            && count(self::$data)
-        ){
+        if (config('database-logging.enable_logging', true) && count(self::$data)){
             $user = auth($guard)->user();
             DatabaseLogging::create([
-                'loggable_id' => $user->getKey(),
-                'loggable_type' => $user->getMorphClass(),
+                'loggable_id' => auth($guard)->check() ? $user->getKey() : null,
+                'loggable_type' => auth($guard)->check() ? $user->getMorphClass() : null,
                 'host' => $request->host(),
                 'path' => $request->path(),
                 'agent' => $request->userAgent(),
