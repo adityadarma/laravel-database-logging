@@ -27,13 +27,16 @@ class LoggingData
      *
      * @param Request $request
      * @param mixed $response
-     * @param string|null $guard
      * @return void
      * @throws JsonException
      */
-    public static function store(Request $request, mixed $response, ?string $guard = null): void
+    public static function store(Request $request, mixed $response): void
     {
-        if (config('database-logging.enable_logging', true) && count(self::$data)){
+        if (
+            config('database-logging.enable_logging', true)
+            && in_array($request->method(), config('database-logging.method'), true)
+            && count(self::$data)
+        ){
             $guard = self::getGuard();
             DatabaseLogging::create([
                 'loggable_id' => $guard ? auth($guard)->user()->getKey() : null,
@@ -45,7 +48,7 @@ class LoggingData
                 'method' => $request->method(),
                 'data' => json_encode(self::$data, JSON_THROW_ON_ERROR),
                 'request' => json_encode($request->except(['_token', '_method']), JSON_THROW_ON_ERROR),
-                'response' => $response->getContent(),
+                'response' => $request->expectsJson() ? $response->getContent() : json_encode([], JSON_THROW_ON_ERROR),
             ]);
         }
     }

@@ -14,6 +14,13 @@ return [
         'update'     => true,
         'delete'     => true,
     ],
+    'method' => [
+        // 'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+    ],
     'route_path' => 'database-logging',
     'assets_path' => 'assets/database-logging',
     'duration' => 30, // days
