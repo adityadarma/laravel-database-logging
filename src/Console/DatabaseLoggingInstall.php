@@ -56,19 +56,8 @@ class DatabaseLoggingInstall extends Command
         $this->line('-----------------------------');
 
         //migration
-        $migrationFile = "2023_01_01_000001_create_database_logging_table.php";
-        if (File::exists(database_path("migrations/$migrationFile"))) {
-            $confirm = $this->confirm("migration file already exist. Do you want to overwrite?");
-            if ($confirm) {
-                $this->publishMigration();
-                $this->info("migration overwrite finished");
-            } else {
-                $this->info("skipped migration publish");
-            }
-        } else {
-            $this->publishMigration();
-            $this->info("migration published");
-        }
+        $this->publishMigration();
+        $this->info("migration published");
 
         $this->line('-----------------------------');
 
