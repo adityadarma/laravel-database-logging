@@ -61,7 +61,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="table-wrap">
+                <div class="table-wrap table-responsive">
                     <table class="table myaccordion table-hover table-striped table-bordered" id="accordion">
                         <thead>
                             <tr>

@@ -36,17 +36,24 @@ class QueryListener
     {
         $pdo = DB::getPdo();
 
-        $modifiedSql = preg_replace_callback('/\?/', function ($matches) use ($bindings, $pdo) {
-            $value = array_shift($bindings);
+        $modifiedSql = '';
+        $bindingIndex = 0;
 
-            if (is_numeric($value)) {
-                return $value;
-            } elseif (is_string($value)) {
-                return $pdo->quote($value);
+        for ($i = 0; $i < strlen($sql); $i++) {
+            if ($sql[$i] === '?' && isset($bindings[$bindingIndex])) {
+                $value = $bindings[$bindingIndex++];
+
+                if (is_numeric($value)) {
+                    $modifiedSql .= $value;
+                } elseif (is_string($value)) {
+                    $modifiedSql .= $pdo->quote($value);
+                } else {
+                    $modifiedSql .= NULL;
+                }
             } else {
-                return NULL;
+                $modifiedSql .= $sql[$i];
             }
-        }, $sql);
+        }
 
         return $modifiedSql;
     }
