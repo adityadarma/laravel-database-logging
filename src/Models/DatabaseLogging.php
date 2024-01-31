@@ -31,6 +31,7 @@ class DatabaseLogging extends Model
         'data',
         'request',
         'response',
+        'query',
     ];
 
     /**
@@ -38,7 +39,7 @@ class DatabaseLogging extends Model
      *
      * @var array
      */
-    protected array $dates = [
+    protected $dates = [
         'created_at',
     ];
 
@@ -64,7 +65,10 @@ class DatabaseLogging extends Model
 
     public function getDateCreateAttribute(): string
     {
-        return $this->created_at->format('d-m-Y H:i:s');
+        if ($this->created_at) {
+            return $this->created_at->format('d-m-Y H:i:s');
+        }
+        return '';
     }
 
     /**
@@ -113,5 +117,13 @@ class DatabaseLogging extends Model
     public function getResponseObjectAttribute()
     {
         return json_decode($this->attributes['response']);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function getQueryObjectAttribute()
+    {
+        return json_decode($this->attributes['query']);
     }
 }

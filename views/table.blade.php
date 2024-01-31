@@ -97,3 +97,30 @@
         </table>
     </div>
 </div>
+
+@if($log->query)
+<div class="row pt-5">
+    <div class="col-md-12">
+        <h5 class="text-uppercase">Query</h5>
+        <hr>
+    </div>
+    <div class="col-md-12">
+        <table class="w-100 table-borderless">
+            <thead class="thead-dark">
+            <tr>
+                <th class="w-75">Execute</th>
+                <th>Time (second)</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($log->queryObject as $key => $value)
+                <tr>
+                    <td>{{ $value->query }}</td>
+                    <td>{{ $value->time }}</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif

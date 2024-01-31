@@ -22,7 +22,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "AdityaDarma\\LaravelDatabaseLogging\\LaravelDatabaseLoggingServiceProvider"
+                "AdityaDarma\\LaravelDatabaseLogging\\LaravelDatabaseLoggingServiceProvider",
+                "AdityaDarma\\LaravelDatabaseLogging\\EventQueryServiceProvider"
             ]
         }
     },
