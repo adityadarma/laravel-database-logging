@@ -22,7 +22,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "AdityaDarma\\LaravelDatabaseLogging\\LaravelDatabaseLoggingServiceProvider"
+                "AdityaDarma\\LaravelDatabaseLogging\\LaravelDatabaseLoggingServiceProvider",
+                "AdityaDarma\\LaravelDatabaseLogging\\EventQueryServiceProvider"
             ]
         }
     },
@@ -31,5 +32,5 @@
         "preferred-install": "dist",
         "optimize-autoloader": true
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }

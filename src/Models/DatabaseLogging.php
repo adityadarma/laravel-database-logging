@@ -4,6 +4,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use JsonException;
 
 class DatabaseLogging extends Model
 {
@@ -30,6 +31,7 @@ class DatabaseLogging extends Model
         'data',
         'request',
         'response',
+        'query',
     ];
 
     /**
@@ -41,7 +43,7 @@ class DatabaseLogging extends Model
         'created_at',
     ];
 
-    protected $appends = [
+    protected array $appends = [
         'name',
         'date_create'
     ];
@@ -63,36 +65,65 @@ class DatabaseLogging extends Model
 
     public function getDateCreateAttribute(): string
     {
-        return $this->created_at->format('d-m-Y H:i:s');
+        if ($this->created_at) {
+            return $this->created_at->format('d-m-Y H:i:s');
+        }
+        return '';
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getDataAttribute()
     {
-        return json_decode($this->attributes['data'], true);
+        return json_decode($this->attributes['data'], true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getRequestAttribute()
     {
-        return json_decode($this->attributes['request'], true);
+        return json_decode($this->attributes['request'], true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getResponseAttribute()
     {
-        return json_decode($this->attributes['response'], true);
+        return json_decode($this->attributes['response'], true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getDataObjectAttribute()
     {
-        return json_decode($this->attributes['data']);
+        return json_decode($this->attributes['data'], false, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getRequestObjectAttribute()
     {
-        return json_decode($this->attributes['request']);
+        return json_decode($this->attributes['request'], false, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getResponseObjectAttribute()
     {
-        return json_decode($this->attributes['response']);
+        return json_decode($this->attributes['response'], false, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function getQueryObjectAttribute()
+    {
+        return json_decode($this->attributes['query']);
     }
 }
