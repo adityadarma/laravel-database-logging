@@ -19,6 +19,46 @@
                 <h2 class="heading-section">Database Logging</h2>
             </div>
         </div>
+        <div class="mb-4">
+            <form action="{{ config('database-logging.route_path') }}" method="get">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="user">User</label>
+                        <select class="form-control" name="user" id="user">
+                            <option value="">- All -</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->loggable_type }}|{{ $user->loggable_id }}" {{ request()->user === $user->loggable_type."|".$user->loggable_id ? 'selected' : '' }}>{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="table">Table</label>
+                        <select class="form-control" name="table" id="table">
+                            <option value="">- All -</option>
+                            @foreach($tables as $table)
+                                <option value="{{ $table }}" {{ request()->table == $table ? 'selected' : '' }}>{{ $table }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="id">ID</label>
+                        <input type="text" class="form-control" name="id" id="id" value="{{ request()->id }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="date-start">Start Date</label>
+                        <input type="date" class="form-control" name="date_start" id="date-start" value="{{ request()->date_start }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="date-end">End Date</label>
+                        <input type="date" class="form-control" name="date_end" id="date-end" value="{{ request()->date_end }}">
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary mt-2"><i class="fa fa-search"></i></button>
+                        <a href="{{ config('database-logging.route_path') }}" class="btn btn-primary mt-2"><i class="fa fa-refresh"></i></a>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="table-wrap">

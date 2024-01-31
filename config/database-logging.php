@@ -2,7 +2,9 @@
 
 return [
     'enable_logging' => env('ENABLE_LOGGING', true),
+    'logging_query' => env('LOGGING_QUERY', false),
     'middleware' => [
+        'web',
         'auth'
     ],
     'model' => [
