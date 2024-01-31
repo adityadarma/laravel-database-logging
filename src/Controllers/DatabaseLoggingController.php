@@ -47,7 +47,8 @@ class DatabaseLoggingController extends Controller
                 $query->where('created_at', '>=', $request->date_end.' 23:59:59');
             })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('LaravelDatabaseLogging::index', $data);
     }
