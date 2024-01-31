@@ -2,10 +2,8 @@
 
 namespace AdityaDarma\LaravelDatabaseLogging\Console;
 
+use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
 
 class DatabaseLoggingPurge extends Command
 {
@@ -42,11 +40,10 @@ class DatabaseLoggingPurge extends Command
     {
         $duration = config('database-logging.duration');
         if ($duration) {
-            DB::table('database_loggings')
-                ->when($duration, function ($query) use ($duration) {
-                    $query->whereDate('created_at', '<=', now()->subDays($duration)->format('Y-m-d'));
-                })
-                ->delete();
+            DatabaseLogging::when($duration, function ($query) use ($duration) {
+                $query->whereDate('created_at', '<=', now()->subDays($duration)->format('Y-m-d'));
+            })
+            ->delete();
         }
     }
 }

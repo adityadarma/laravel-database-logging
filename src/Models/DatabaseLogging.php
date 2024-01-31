@@ -4,6 +4,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use JsonException;
 
 class DatabaseLogging extends Model
 {
@@ -37,7 +38,7 @@ class DatabaseLogging extends Model
      *
      * @var array
      */
-    protected $dates = [
+    protected array $dates = [
         'created_at',
     ];
 
@@ -51,7 +52,7 @@ class DatabaseLogging extends Model
         return $this->morphTo('loggable');
     }
 
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         foreach (config('database-logging.model') as $model => $name) {
             if ($this->loggable_type == $model) {
@@ -61,36 +62,54 @@ class DatabaseLogging extends Model
         return '-';
     }
 
-    public function getDateCreateAttribute()
+    public function getDateCreateAttribute(): string
     {
         return $this->created_at->format('d-m-Y H:i:s');
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getDataAttribute()
     {
         return json_decode($this->attributes['data'], true);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getRequestAttribute()
     {
         return json_decode($this->attributes['request'], true);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getResponseAttribute()
     {
         return json_decode($this->attributes['response'], true);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getDataObjectAttribute()
     {
         return json_decode($this->attributes['data']);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getRequestObjectAttribute()
     {
         return json_decode($this->attributes['request']);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getResponseObjectAttribute()
     {
         return json_decode($this->attributes['response']);

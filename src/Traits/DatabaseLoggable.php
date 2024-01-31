@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 trait DatabaseLoggable
 {
+    /**
+     * Boot model
+     *
+     * @return void
+     */
     public static function boot(): void
     {
         parent::boot();
@@ -44,6 +49,14 @@ trait DatabaseLoggable
         }
     }
 
+    /**
+     * Find different data
+     *
+     * @param array $old
+     * @param array $new
+     * @param string $event
+     * @return array
+     */
     public static function getDifferentData(array $old, array $new, string $event): array
     {
         $columns = count($old) ? array_keys($old) : array_keys($new);
@@ -60,7 +73,7 @@ trait DatabaseLoggable
                     ];
                 }
                 else if ($event == 'update') {
-                    if ($old[$column] != $new[$column]) {
+                    if (isset($new[$column]) && $old[$column] != $new[$column]) {
                         $result[] = [
                             'column' => $column,
                             'old' => $old[$column],

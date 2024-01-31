@@ -4,7 +4,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
+use AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider;
 
 class DatabaseLoggingInstall extends Command
 {
@@ -53,21 +53,13 @@ class DatabaseLoggingInstall extends Command
             $this->info("config published");
         }
 
+        $this->line('-----------------------------');
 
         //migration
-        $migrationFile = "2023_01_01_000001_create_database_logging_table.php";
-        if (File::exists(database_path("migrations/$migrationFile"))) {
-            $confirm = $this->confirm("migration file already exist. Do you want to overwrite?");
-            if ($confirm) {
-                $this->publishMigration();
-                $this->info("migration overwrite finished");
-            } else {
-                $this->info("skipped migration publish");
-            }
-        } else {
-            $this->publishMigration();
-            $this->info("migration published");
-        }
+        $this->publishMigration();
+        $this->info("migration published");
+
+        $this->line('-----------------------------');
 
         //assets
         if (File::exists(public_path(config('database-logging.assets_path')))) {
@@ -82,17 +74,12 @@ class DatabaseLoggingInstall extends Command
             $this->publishAssets();
             $this->info("assets published");
         }
-
-        $this->line('-----------------------------');
-        $this->call('migrate', [
-            '--force'    => true
-        ]);
     }
 
     private function publishConfig(): void
     {
         $this->call('vendor:publish', [
-            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'config',
             '--force'    => true
         ]);
@@ -101,7 +88,7 @@ class DatabaseLoggingInstall extends Command
     private function publishMigration(): void
     {
         $this->call('vendor:publish', [
-            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'migrations',
             '--force'    => true
         ]);
@@ -110,7 +97,7 @@ class DatabaseLoggingInstall extends Command
     private function publishAssets(): void
     {
         $this->call('vendor:publish', [
-            '--provider' => "AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider",
+            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'assets',
             '--force'    => true
         ]);
