@@ -43,7 +43,7 @@ class DatabaseLoggingController extends Controller
                 $query->where('created_at', '>=', $request->date_start.' 00:00:00');
             })
             ->when($request->date_end, function ($query) use ($request) {
-                $query->where('created_at', '>=', $request->date_end.' 23:59:59');
+                $query->where('created_at', '<=', $request->date_end.' 23:59:59');
             })
             ->latest()
             ->paginate(10)
