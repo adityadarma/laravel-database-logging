@@ -8,27 +8,13 @@ Laravel Database Logging is a feature that allows developers to store applicatio
     composer require adityadarma/laravel-database-logging
 ```
 
-2. Register the package
-
-* Laravel 5.5 and up
-  Uses package auto discovery feature, no need to edit the `config/database-logging.php` file.
-
-* Laravel 5.4 and below
-  Register the package with laravel in `config/database-logging.php` under `providers` with the following:
-
-```php
-    'providers' => [
-        AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider::class,
-    ];
-```
-
-3. Install config and asset to record the activities to:
+2. Install config and asset to record the activities to:
 
 ```php
     php artisan database-logging:install
 ```
 
-4. Run the migration to add the table to record the activities to:
+3. Run the migration to add the table to record the activities to:
 
 ```php
     php artisan migrate
@@ -88,5 +74,5 @@ To use the trait:
 
 * ```/database-logging```
 
-### License
+## License
 Laravel-logger is licensed under the MIT license. Enjoy!

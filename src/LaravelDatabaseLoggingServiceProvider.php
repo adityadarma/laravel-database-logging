@@ -16,7 +16,6 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
     public const VIEW_PATH = __DIR__ . '/../views';
     public const PUBLIC_PATH = __DIR__ . '/../public';
 
-
     /**
      * Publish data.
      *

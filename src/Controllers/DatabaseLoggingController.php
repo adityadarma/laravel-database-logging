@@ -27,7 +27,6 @@ class DatabaseLoggingController extends Controller
         }
         $data['tables'] = $tables;
 
-
         $data['logs'] =  DatabaseLogging::with(['loggable'])
             ->when($request->user, function ($query) use ($request) {
                 $exp = explode('|', $request->user);

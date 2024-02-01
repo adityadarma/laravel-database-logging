@@ -23,16 +23,6 @@ class DatabaseLoggingInstall extends Command
     protected $description = 'It will publish config file and run a migration for database logging';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void
