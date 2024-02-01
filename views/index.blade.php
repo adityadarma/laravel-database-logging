@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ asset(config('database-logging.assets_path').'/css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset(config('database-logging.assets_path').'/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset(config('database-logging.assets_path').'/css/style.css') }}">
 
@@ -69,15 +69,17 @@
                                 <th>User Name</th>
                                 <th>Client</th>
                                 <th width="100px">Method</th>
-                                <th width="150px">Date</th>
+                                <th width="200px">Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($logs as $key => $log)
                                 <tr data-toggle="collapse" data-target="#collapse{{$key}}" aria-expanded="true" aria-controls="collapse{{$key}}">
-                                    <th scope="row">{{ $key+1 }}</th>
+                                    <th scope="row">{{ $logs->firstItem() + $key }}</th>
                                     <td>{{ $log->name }}</td>
                                     <td>
+                                        <b>IP:</b> {{ $log->ip_address }}<br>
+                                        <b>Agent:</b> {{ $log->agent }}<br>
                                         <b>Host:</b> {{ $log->host }}<br>
                                         <b>Path:</b> {{ $log->path }}<br>
                                     </td>
