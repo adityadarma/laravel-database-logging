@@ -50,6 +50,28 @@ class LoggingData
             && count(self::$data)
         ){
             $guard = self::getGuard();
+
+            // Upload file
+            $files = $request->allFiles();
+            $filesArray = [];
+            foreach ($files as $key => $file) {
+                if (is_array($file)) {
+                    foreach ($file as $item) {
+                        $filesArray[$key][] = [
+                            'name' => $item->getClientOriginalName(),
+                            'size' => $item->getSize(),
+                            'mime_type' => $item->getMimeType(),
+                        ];
+                    }
+                } else {
+                    $filesArray[$key] = [
+                        'name' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime_type' => $file->getMimeType(),
+                    ];
+                }
+            }
+
             DatabaseLogging::create([
                 'loggable_id' => $guard ? auth($guard)->user()->getKey() : null,
                 'loggable_type' => $guard ? auth($guard)->user()->getMorphClass() : null,
@@ -59,7 +81,7 @@ class LoggingData
                 'ip_address' => $request->ip(),
                 'method' => $request->method(),
                 'data' => json_encode(self::$data, JSON_THROW_ON_ERROR),
-                'request' => json_encode($request->except(['_token', '_method']), JSON_THROW_ON_ERROR),
+                'request' => json_encode(array_merge($request->except(['_token', '_method']), $filesArray), JSON_THROW_ON_ERROR),
                 'response' => $request->expectsJson() ? $response->getContent() : json_encode([], JSON_THROW_ON_ERROR),
                 'query' => json_encode(self::$query, JSON_THROW_ON_ERROR),
             ]);
