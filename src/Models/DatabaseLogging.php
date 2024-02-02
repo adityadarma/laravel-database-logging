@@ -43,7 +43,7 @@ class DatabaseLogging extends Model
         'created_at',
     ];
 
-    protected array $appends = [
+    protected $appends = [
         'name',
         'date_create'
     ];
