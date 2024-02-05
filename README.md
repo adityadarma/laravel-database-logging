@@ -39,7 +39,7 @@ LOGGING_QUERY=true
 Events for laravel authentication scaffolding are listened for as providers and are enabled via middleware.
 You can add events to your routes and controllers via the middleware:
 
-```php
+```
 capture-logging
 ```
 
@@ -61,19 +61,21 @@ To use the trait:
 1. Include the call in the head of your class file:
 
     ```php
-        use AdityaDarma\LaravelDatabaseLogging\Traits\DatabaseLoggable;
+    use AdityaDarma\LaravelDatabaseLogging\Traits\DatabaseLoggable;
     ```
 
 2. Include the trait call in the opening of your class:
 
     ```php
-        use DatabaseLoggable;
+    use DatabaseLoggable;
     ```
 
 ### Routes
+
 ##### Laravel Activity Dashbaord Routes
 
 * ```/database-logging```
 
 ## License
-Laravel-logger is licensed under the MIT license. Enjoy!
+
+This Package is licensed under the MIT license. Enjoy!
