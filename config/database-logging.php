@@ -10,6 +10,9 @@ return [
         'web',
         'auth'
     ],
+    'guards' => [
+        'web'
+    ],
     'model' => [
         App\Models\User::class => 'name' // Name user
     ],
