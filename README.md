@@ -4,21 +4,21 @@ Laravel Database Logging is a feature that allows developers to store applicatio
 ### Laravel Installation Instructions
 1. From your projects root folder in terminal run:
 
-```bash
-    composer require adityadarma/laravel-database-logging
-```
+   ```bash
+   composer require adityadarma/laravel-database-logging
+   ```
 
 2. Install config and asset to record the activities to:
 
-```php
-    php artisan database-logging:install
-```
+   ```php
+   php artisan database-logging:install
+   ```
 
-3. Run the migration to add the table to record the activities to:
+3. Run the migration to add the table to record, before running please check morph key type on config to set type column:
 
-```php
-    php artisan migrate
-```
+   ```php
+   php artisan migrate
+   ```
 
 ### Configuration
 Laravel Database Logging can be configured in directly in `/config/database-logging.php` if you published the assets.
@@ -30,7 +30,7 @@ Here are the `.env` file variables available:
 
 ```dotenv
 ENABLE_LOGGING=true
-LOGGING_QUERY=true
+LOGGING_QUERY=false
 ```
 
 ### Usage

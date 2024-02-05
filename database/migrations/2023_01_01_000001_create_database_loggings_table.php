@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,6 +14,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Builder::$defaultMorphKeyType = config('database-logging.morph_key_type');
+
         Schema::create('database_loggings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->morphs('loggable');
