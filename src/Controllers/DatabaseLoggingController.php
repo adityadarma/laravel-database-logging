@@ -30,8 +30,8 @@ class DatabaseLoggingController extends Controller
         $data['logs'] =  DatabaseLogging::with(['loggable'])
             ->when($request->user, function ($query) use ($request) {
                 $exp = explode('|', $request->user);
-                $query->where('loggable_type', $exp[0]);
-                $query->where('loggable_id', $exp[1]);
+                $query->where('loggable_type', $exp[0] !== '' ? $exp[0] : null);
+                $query->where('loggable_id', $exp[1] !== '' ? $exp[1] : null);
             })
             ->when($request->table, function ($query) use ($request) {
                 $query->whereJsonContains('data', [['table' => $request->table]]);

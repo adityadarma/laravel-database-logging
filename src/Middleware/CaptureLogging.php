@@ -20,10 +20,8 @@ class CaptureLogging
     {
         $response = $next($request);
 
-        try {
-            LoggingData::store($request, $response);
-        } finally {
-            return $response;
-        }
+        LoggingData::store($request, $response);
+
+        return $response;
     }
 }
