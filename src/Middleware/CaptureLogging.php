@@ -18,6 +18,8 @@ class CaptureLogging
      */
     public function handle(Request $request, Closure $next): Response
     {
+        LoggingData::request($request);
+
         $response = $next($request);
 
         LoggingData::store($request, $response);
