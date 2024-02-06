@@ -10,13 +10,13 @@ Laravel Database Logging is a feature that allows developers to store applicatio
 
 2. Install config and asset to record the activities to:
 
-   ```php
+   ```bash
    php artisan database-logging:install
    ```
 
 3. Run the migration to add the table to record, before running please check morph key type on config to set type column:
 
-   ```php
+   ```bash
    php artisan migrate
    ```
 
