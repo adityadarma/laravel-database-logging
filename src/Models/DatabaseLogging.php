@@ -56,7 +56,7 @@ class DatabaseLogging extends Model
     public function getNameAttribute()
     {
         foreach (config('database-logging.model') as $model => $name) {
-            if ($this->loggable_type == $model) {
+            if ($this->loggable_type === $model) {
                 return $this->loggable->$name;
             }
         }
@@ -124,6 +124,6 @@ class DatabaseLogging extends Model
      */
     public function getQueryObjectAttribute()
     {
-        return json_decode($this->attributes['query']);
+        return json_decode($this->attributes['query'], false, 512, JSON_THROW_ON_ERROR);
     }
 }

@@ -62,7 +62,8 @@ class LoggingData
                             'mime_type' => $item->getMimeType(),
                         ];
                     }
-                } else {
+                }
+                else {
                     $filesArray[$key] = [
                         'name' => $file->getClientOriginalName(),
                         'size' => $file->getSize(),

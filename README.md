@@ -43,7 +43,7 @@ You can add events to your routes and controllers via the middleware:
 capture-logging
 ```
 
-Example to start recording page views using middlware in `web.php`:
+Example to start recording page views using middleware in `web.php`:
 
 ```php
 Route::group(['middleware' => ['web', 'capture-logging']], function () {
@@ -51,7 +51,7 @@ Route::group(['middleware' => ['web', 'capture-logging']], function () {
 });
 ```
 
-This middlware can be enabled/disabled in the configuration settings.
+This middleware can be enabled/disabled in the configuration settings.
 
 ##### Trait Usage
 Events can be recorded directly by using the trait.
@@ -72,7 +72,9 @@ To use the trait:
 
 ### Routes
 
-##### Laravel Activity Dashbaord Routes
+##### Laravel Activity Dashboard Routes
+
+Set route access from file config `database-logging.php` 
 
 * ```/database-logging```
 
