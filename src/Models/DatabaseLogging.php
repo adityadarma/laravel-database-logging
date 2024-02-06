@@ -56,7 +56,7 @@ class DatabaseLogging extends Model
     public function getNameAttribute(): string
     {
         foreach (config('database-logging.model') as $model => $name) {
-            if ($this->loggable_type == $model) {
+            if ($this->loggable_type === $model) {
                 return $this->loggable->$name;
             }
         }
@@ -76,7 +76,7 @@ class DatabaseLogging extends Model
      */
     public function getDataAttribute()
     {
-        return json_decode($this->attributes['data'], true);
+        return json_decode($this->attributes['data'], true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -84,7 +84,7 @@ class DatabaseLogging extends Model
      */
     public function getRequestAttribute()
     {
-        return json_decode($this->attributes['request'], true);
+        return json_decode($this->attributes['request'], true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -92,7 +92,7 @@ class DatabaseLogging extends Model
      */
     public function getResponseAttribute()
     {
-        return json_decode($this->attributes['response'], true);
+        return json_decode($this->attributes['response'], true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -100,7 +100,7 @@ class DatabaseLogging extends Model
      */
     public function getDataObjectAttribute()
     {
-        return json_decode($this->attributes['data']);
+        return json_decode($this->attributes['data'], false, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -108,7 +108,7 @@ class DatabaseLogging extends Model
      */
     public function getRequestObjectAttribute()
     {
-        return json_decode($this->attributes['request']);
+        return json_decode($this->attributes['request'], false, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -116,7 +116,7 @@ class DatabaseLogging extends Model
      */
     public function getResponseObjectAttribute()
     {
-        return json_decode($this->attributes['response']);
+        return json_decode($this->attributes['response'], false, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -124,6 +124,6 @@ class DatabaseLogging extends Model
      */
     public function getQueryObjectAttribute()
     {
-        return json_decode($this->attributes['query']);
+        return json_decode($this->attributes['query'], false, 512, JSON_THROW_ON_ERROR);
     }
 }

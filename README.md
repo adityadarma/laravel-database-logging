@@ -4,21 +4,21 @@ Laravel Database Logging is a feature that allows developers to store applicatio
 ### Laravel Installation Instructions
 1. From your projects root folder in terminal run:
 
-```bash
-    composer require adityadarma/laravel-database-logging
-```
+   ```bash
+   composer require adityadarma/laravel-database-logging
+   ```
 
 2. Install config and asset to record the activities to:
 
-```php
-    php artisan database-logging:install
-```
+   ```bash
+   php artisan database-logging:install
+   ```
 
 3. Run the migration to add the table to record the activities to:
 
-```php
-    php artisan migrate
-```
+   ```bash
+   php artisan migrate
+   ```
 
 ### Configuration
 Laravel Database Logging can be configured in directly in `/config/database-logging.php` if you published the assets.
@@ -30,7 +30,7 @@ Here are the `.env` file variables available:
 
 ```dotenv
 ENABLE_LOGGING=true
-LOGGING_QUERY=true
+LOGGING_QUERY=false
 ```
 
 ### Usage
@@ -43,7 +43,7 @@ You can add events to your routes and controllers via the middleware:
 capture-logging
 ```
 
-Example to start recording page views using middlware in `web.php`:
+Example to start recording page views using middleware in `web.php`:
 
 ```php
 Route::group(['middleware' => ['web', 'capture-logging']], function () {
@@ -51,7 +51,7 @@ Route::group(['middleware' => ['web', 'capture-logging']], function () {
 });
 ```
 
-This middlware can be enabled/disabled in the configuration settings.
+This middleware can be enabled/disabled in the configuration settings.
 
 ##### Trait Usage
 Events can be recorded directly by using the trait.
@@ -72,7 +72,9 @@ To use the trait:
 
 ### Routes
 
-##### Laravel Activity Dashbaord Routes
+##### Laravel Activity Dashboard Routes
+
+Set route access from file config `database-logging.php`
 
 * ```/database-logging```
 
