@@ -42,7 +42,7 @@ class LoggingData
      * @param Request $request
      * @return void
      */
-    public function request(Request $request): void
+    public static function request(Request $request): void
     {
         // Upload file
         $files = $request->allFiles();
