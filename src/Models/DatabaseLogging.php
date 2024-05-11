@@ -53,7 +53,7 @@ class DatabaseLogging extends Model
         return $this->morphTo('loggable');
     }
 
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         foreach (config('database-logging.model') as $model => $name) {
             if ($this->loggable_type === $model) {
