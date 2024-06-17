@@ -57,10 +57,10 @@ class DatabaseLogging extends Model
     {
         foreach (config('database-logging.model') as $model => $name) {
             if ($this->loggable_type === $model) {
-                return $this->loggable->$name;
+                return $this->loggable->$name ?? '';
             }
         }
-        return '-';
+        return '';
     }
 
     public function getDateCreateAttribute(): string
