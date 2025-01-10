@@ -26,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('database_loggings', function (Blueprint $table) {
-            $table->string('query')->change();
+            $table->dropColumn('query');
         });
     }
 };
