@@ -5,7 +5,7 @@ return [
     'logging_query' => env('LOGGING_QUERY', false),
     'morph_key_type' => 'int', // available int, uuid, ulid
     'exclude_table_logging_query' => [
-        // migrations
+        'migrations'
     ],
     'middleware' => [
         'web',
@@ -31,7 +31,7 @@ return [
         'DELETE',
     ],
     'route_controller' => AdityaDarma\LaravelDatabaseLogging\Controllers\DatabaseLoggingController::class,
-    'route_path' => 'database-logging',
+    'route_path' => '/database-logging',
     'assets_path' => 'assets/database-logging',
     'duration' => 30, // days
 ];

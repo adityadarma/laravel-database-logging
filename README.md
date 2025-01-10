@@ -51,6 +51,12 @@ Route::group(['middleware' => ['web', 'capture-logging']], function () {
 });
 ```
 
+or you can add middleware class on kernel application
+
+```php
+\AdityaDarma\LaravelDatabaseLogging\Middleware\CaptureLogging::class
+```
+
 This middleware can be enabled/disabled in the configuration settings.
 
 ##### Trait Usage
