@@ -4,7 +4,7 @@ return [
     'enable_logging' => env('ENABLE_LOGGING', true),
     'logging_query' => env('LOGGING_QUERY', false),
     'exclude_table_logging_query' => [
-        // migrations
+        'migrations'
     ],
     'middleware' => [
         'web',
@@ -30,7 +30,7 @@ return [
         'DELETE',
     ],
     'route_controller' => AdityaDarma\LaravelDatabaseLogging\Controllers\DatabaseLoggingController::class,
-    'route_path' => 'database-logging',
+    'route_path' => '/database-logging',
     'assets_path' => 'assets/database-logging',
     'duration' => 30, // days
 ];

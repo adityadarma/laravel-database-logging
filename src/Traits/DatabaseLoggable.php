@@ -21,7 +21,7 @@ trait DatabaseLoggable
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'create',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'create')
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'create')
                 ]);
             });
         }
@@ -32,7 +32,7 @@ trait DatabaseLoggable
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'update',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'update')
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'update')
                 ]);
             });
         }
@@ -43,7 +43,7 @@ trait DatabaseLoggable
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'delete',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'delete')
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'delete')
                 ]);
             });
         }
