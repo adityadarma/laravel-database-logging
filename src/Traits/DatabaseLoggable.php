@@ -12,38 +12,37 @@ trait DatabaseLoggable
      *
      * @return void
      */
-    public static function boot(): void
+    protected static function bootDatabaseLoggable(): void
     {
-        parent::boot();
         if (config('database-logging.log_events.create', false)) {
-            self::created(function (Model $model) {
+            static::created(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'create',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'create')
+                    'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'create')
                 ]);
             });
         }
 
         if (config('database-logging.log_events.update', false)) {
-            self::updated(function (Model $model) {
+            static::updated(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'update',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'update')
+                    'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'update')
                 ]);
             });
         }
 
         if (config('database-logging.log_events.delete', false)) {
-            self::deleted(function (Model $model) {
+            static::deleted(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'delete',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'delete')
+                    'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'delete')
                 ]);
             });
         }
@@ -57,7 +56,7 @@ trait DatabaseLoggable
      * @param string $event
      * @return array
      */
-    public static function getDifferentData(array $old, array $new, string $event): array
+    private static function getDifferentData(array $old, array $new, string $event): array
     {
         $columns = count($old) ? array_keys($old) : array_keys($new);
         $result = [];

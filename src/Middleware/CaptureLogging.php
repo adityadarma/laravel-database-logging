@@ -24,12 +24,8 @@ class CaptureLogging
 
         $response = $next($request);
 
-        try {
-            LoggingData::store($request, $response);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        } finally {
-            return $response;
-        }
+        LoggingData::store($request, $response);
+        
+        return $response;
     }
 }
