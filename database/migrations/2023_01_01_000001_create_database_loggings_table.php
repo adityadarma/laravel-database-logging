@@ -15,7 +15,7 @@ class CreateDatabaseLoggingsTable extends Migration
     {
         Schema::create('database_loggings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->morphs('loggable');
+            $table->nullableMorphs('loggable');
             $table->string('host');
             $table->text('path');
             $table->text('agent')->nullable();
