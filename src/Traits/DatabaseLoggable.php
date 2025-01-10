@@ -21,7 +21,7 @@ trait DatabaseLoggable
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'create',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'create')
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'create')
                 ]);
             });
         }
@@ -32,7 +32,7 @@ trait DatabaseLoggable
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'update',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'update')
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'update')
                 ]);
             });
         }
@@ -43,7 +43,7 @@ trait DatabaseLoggable
                     'table' => $model->getTable(),
                     'id' => $model->getKey(),
                     'event' => 'delete',
-                    'data' => self::getDifferentData($model->getRawOriginal(), $model->toArray(), 'delete')
+                    'data' => self::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'delete')
                 ]);
             });
         }
@@ -61,33 +61,30 @@ trait DatabaseLoggable
     {
         $columns = count($old) ? array_keys($old) : array_keys($new);
         $result = [];
-        $excludeColumn = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
         foreach ($columns as $column) {
-            if (!in_array($column, $excludeColumn, true)) {
-                if ($event === 'create') {
-                    $result[] = [
-                        'column' => $column,
-                        'old' => null,
-                        'new' => $new[$column]
-                    ];
-                }
-                else if ($event === 'update') {
-                    if (isset($new[$column]) && $old[$column] !== $new[$column]) {
-                        $result[] = [
-                            'column' => $column,
-                            'old' => $old[$column],
-                            'new' => $new[$column]
-                        ];
-                    }
-                }
-                else if ($event === 'delete') {
+            if ($event === 'create') {
+                $result[] = [
+                    'column' => $column,
+                    'old' => null,
+                    'new' => $new[$column]
+                ];
+            }
+            else if ($event === 'update') {
+                if (isset($new[$column]) && $old[$column] !== $new[$column]) {
                     $result[] = [
                         'column' => $column,
                         'old' => $old[$column],
-                        'new' => null
+                        'new' => $new[$column]
                     ];
                 }
+            }
+            else if ($event === 'delete') {
+                $result[] = [
+                    'column' => $column,
+                    'old' => $old[$column],
+                    'new' => null
+                ];
             }
         }
 

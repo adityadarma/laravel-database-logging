@@ -43,7 +43,7 @@ class DatabaseLogging extends Model
         'created_at',
     ];
 
-    protected array $appends = [
+    protected $appends = [
         'name',
         'date_create'
     ];
@@ -53,14 +53,14 @@ class DatabaseLogging extends Model
         return $this->morphTo('loggable');
     }
 
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         foreach (config('database-logging.model') as $model => $name) {
-            if ($this->loggable_type == $model) {
-                return $this->loggable->$name;
+            if ($this->loggable_type === $model) {
+                return $this->loggable->$name ?? '';
             }
         }
-        return '-';
+        return '';
     }
 
     public function getDateCreateAttribute(): string
@@ -124,6 +124,6 @@ class DatabaseLogging extends Model
      */
     public function getQueryObjectAttribute()
     {
-        return json_decode($this->attributes['query']);
+        return json_decode($this->attributes['query'], false, 512, JSON_THROW_ON_ERROR);
     }
 }

@@ -22,16 +22,6 @@ class DatabaseLoggingPurge extends Command
     protected $description = 'It will remove database logging';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void
@@ -40,10 +30,8 @@ class DatabaseLoggingPurge extends Command
     {
         $duration = config('database-logging.duration');
         if ($duration) {
-            DatabaseLogging::when($duration, function ($query) use ($duration) {
-                $query->whereDate('created_at', '<=', now()->subDays($duration)->format('Y-m-d'));
-            })
-            ->delete();
+            DatabaseLogging::whereDate('created_at', '<=', now()->subDays($duration)->format('Y-m-d'))
+                ->delete();
         }
     }
 }

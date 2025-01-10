@@ -1,6 +1,7 @@
 {
     "name": "adityadarma/laravel-database-logging",
     "description": "Logging activities database for laravel",
+    "keywords": ["laravel", "database logging", "laravel logging"],
     "homepage": "https://github.com/adityadarma/laravel-database-logging",
     "type": "library",
     "license": "MIT",
@@ -12,7 +13,7 @@
     ],
     "require": {
         "php": "^8.0",
-		"laravel/framework": "^9.0|^10.0"
+        "laravel/framework": "^9.0|^10.0|^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -22,8 +23,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "AdityaDarma\\LaravelDatabaseLogging\\LaravelDatabaseLoggingServiceProvider",
-                "AdityaDarma\\LaravelDatabaseLogging\\EventQueryServiceProvider"
+                "AdityaDarma\\LaravelDatabaseLogging\\LaravelDatabaseLoggingServiceProvider"
             ]
         }
     },

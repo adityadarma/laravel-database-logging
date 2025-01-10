@@ -6,6 +6,7 @@ use AdityaDarma\LaravelDatabaseLogging\Console\DatabaseLoggingInstall;
 use AdityaDarma\LaravelDatabaseLogging\Console\DatabaseLoggingPurge;
 use AdityaDarma\LaravelDatabaseLogging\Middleware\CaptureLogging;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
@@ -14,8 +15,7 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
     public const MIGRATION_PATH = __DIR__ . '/../database/migrations';
     public const ROUTE_PATH = __DIR__ . '/../routes';
     public const VIEW_PATH = __DIR__ . '/../views';
-    public const PUBLIC_PATH = __DIR__ . '/../public';
-
+    public const ASSET_PATH = __DIR__ . '/../public';
 
     /**
      * Publish data.
@@ -29,32 +29,26 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->publishes([
-            self::MIGRATION_PATH => database_path('migrations')
-        ], 'migrations');
-
-        $this->publishes([
-            self::PUBLIC_PATH => public_path(config('database-logging.assets_path'))
+            self::ASSET_PATH => public_path(config('database-logging.assets_path'))
         ], 'assets');
     }
 
     /**
-     * Bootstrap services.
-     *
-     * @return void
+     * @throws BindingResolutionException
      */
-    public function boot(): void
+    private function registerMiddlewareAlias(): void
     {
-        $this->publish();
-
-        $this->loadRoutesFrom(self::ROUTE_PATH . '/web.php');
-        $this->loadViewsFrom(self::VIEW_PATH, 'LaravelDatabaseLogging');
+        $this->app->make(Router::class)
+            ->aliasMiddleware(
+                'capture-logging',
+                CaptureLogging::class
+            );
     }
 
     /**
      * Register services.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     public function register(): void
     {
@@ -63,16 +57,34 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
             'database-logging'
         );
 
+        $this->app->register(EventQueryServiceProvider::class);
+
         $this->app->singleton(LoggingData::class, function() {
             return new LoggingData();
         });
+    }
 
-        $this->commands([DatabaseLoggingInstall::class]);
-        $this->commands([DatabaseLoggingPurge::class]);
+    /**
+     * Bootstrap services.
+     *
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function boot(): void
+    {
+        $this->loadMigrationsFrom([self::MIGRATION_PATH]);
 
-        $this->app->make('router')->aliasMiddleware(
-                'capture-logging',
-                CaptureLogging::class
-            );
+        if ($this->app->runningInConsole()) {
+            $this->publish();
+            $this->commands([
+                DatabaseLoggingInstall::class,
+                DatabaseLoggingPurge::class
+            ]);
+        }
+
+        $this->loadRoutesFrom(self::ROUTE_PATH . '/web.php');
+        $this->loadViewsFrom(self::VIEW_PATH, 'LaravelDatabaseLogging');
+
+        $this->registerMiddlewareAlias();
     }
 }

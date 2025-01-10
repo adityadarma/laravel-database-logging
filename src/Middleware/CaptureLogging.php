@@ -4,7 +4,9 @@ namespace AdityaDarma\LaravelDatabaseLogging\Middleware;
 
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,10 +20,16 @@ class CaptureLogging
      */
     public function handle(Request $request, Closure $next): Response
     {
+        LoggingData::request($request);
+
         $response = $next($request);
 
-        LoggingData::store($request, $response);
-
-        return $response;
+        try {
+            LoggingData::store($request, $response);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+        } finally {
+            return $response;
+        }
     }
 }

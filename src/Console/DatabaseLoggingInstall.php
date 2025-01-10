@@ -23,16 +23,6 @@ class DatabaseLoggingInstall extends Command
     protected $description = 'It will publish config file and run a migration for database logging';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void
@@ -45,32 +35,30 @@ class DatabaseLoggingInstall extends Command
             if ($confirm) {
                 $this->publishConfig();
                 $this->info("config overwrite finished");
-            } else {
+            }
+            else {
                 $this->info("skipped config publish");
             }
-        } else {
+        }
+        else {
             $this->publishConfig();
             $this->info("config published");
         }
 
         $this->line('-----------------------------');
 
-        //migration
-        $this->publishMigration();
-        $this->info("migration published");
-
-        $this->line('-----------------------------');
-
         //assets
         if (File::exists(public_path(config('database-logging.assets_path')))) {
-            $confirm = $this->confirm("assets file already exist. Do you want to overwrite?");
+            $confirm = $this->confirm("assets folder already exist. Do you want to overwrite?");
             if ($confirm) {
                 $this->publishAssets();
                 $this->info("assets overwrite finished");
-            } else {
+            }
+            else {
                 $this->info("skipped assets publish");
             }
-        } else {
+        }
+        else {
             $this->publishAssets();
             $this->info("assets published");
         }
@@ -81,15 +69,6 @@ class DatabaseLoggingInstall extends Command
         $this->call('vendor:publish', [
             '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'config',
-            '--force'    => true
-        ]);
-    }
-
-    private function publishMigration(): void
-    {
-        $this->call('vendor:publish', [
-            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
-            '--tag'      => 'migrations',
             '--force'    => true
         ]);
     }
