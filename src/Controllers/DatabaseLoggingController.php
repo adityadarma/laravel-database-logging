@@ -4,6 +4,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Controllers;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -19,11 +20,40 @@ class DatabaseLoggingController extends Controller
             ->get();
 
         // Table
-        $tables_in_db = DB::select('SHOW TABLES');
-        $db = "Tables_in_".env('DB_DATABASE');
+        $connection = config('database-logging.database_connection');
         $tables = [];
-        foreach($tables_in_db as $table){
-            $tables[] = $table->{$db};
+        switch ($connection) {
+            case 'mysql':
+            case 'mariadb':
+                $tables_in_db = DB::select("SHOW TABLES");
+                foreach ($tables_in_db as $table) {
+                    $tables[] = ucwords(str_replace('_', ' ', reset($table)));
+                }
+                break;
+
+            case 'pgsql':
+                $tables_in_db = DB::select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'");
+                foreach ($tables_in_db as $table) {
+                    $tables[] = ucwords(str_replace('_', ' ', $table->tablename));
+                }
+                break;
+
+            case 'sqlsrv':
+                $tables_in_db = DB::select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
+                foreach ($tables_in_db as $table) {
+                    $tables[] = ucwords(str_replace('_', ' ', $table->TABLE_NAME));
+                }
+                break;
+
+            case 'sqlite':
+                $tables_in_db = DB::select("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+                foreach ($tables_in_db as $table) {
+                    $tables[] = ucwords(str_replace('_', ' ', $table->name));
+                }
+                break;
+
+            default:
+                throw new Exception("Database driver tidak didukung.");
         }
         $data['tables'] = $tables;
 
