@@ -32,8 +32,18 @@
                         @foreach($data->data as $column)
                             <tr>
                                 <td>{{ $column->column }}</td>
-                                <td>{{ $column->old }}</td>
-                                <td>{{ $column->new }}</td>
+
+                                @if (is_array($column->old) || is_object($column->old))
+                                    <td>{!! "<pre>". print_r(e($column->old), true) ."</pre>" !!}</td>
+                                @else
+                                    <td>{{ $column->old }}</td>
+                                @endif
+
+                                @if (is_array($column->new) || is_object($column->new))
+                                    <td>{!! "<pre>". print_r(e($column->new), true) ."</pre>" !!}</td>
+                                @else
+                                    <td>{{ $column->new }}</td>
+                                @endif
                             </tr>
                         @endforeach
                     @endif
@@ -62,7 +72,12 @@
                 @foreach($log->requestObject as $key => $value)
                     <tr>
                         <td class="font-weight-bold">{{ $key }}</td>
-                        <td colspan="3">{!! is_array($value) || is_object($value) ? "<pre>". print_r($value, true) ."</pre>" : $value !!}</td>
+
+                        @if (is_array($value) || is_object($value))
+                            <td>{!! "<pre>". print_r(e($value), true) ."</pre>" !!}</td>
+                        @else
+                            <td>{{ $value }}</td>
+                        @endif
                     </tr>
                 @endforeach
             @endif
@@ -89,7 +104,12 @@
                 @foreach($log->responseObject as $name => $value)
                     <tr>
                         <td class="font-weight-bold">{{ $name }}</td>
-                        <td colspan="3">{!! is_array($value) || is_object($value) ? "<pre>". print_r($value, true) ."</pre>" : $value !!}</td>
+
+                        @if (is_array($value) || is_object($value))
+                            <td>{!! "<pre>". print_r(e($value), true) ."</pre>" !!}</td>
+                        @else
+                            <td>{{ $value }}</td>
+                        @endif
                     </tr>
                 @endforeach
             @endif

@@ -8,6 +8,11 @@ return [
     'exclude_table_logging_query' => [
         'migrations'
     ],
+    'exclude_column_logging_query' => [
+        'password',
+        'remember_token',
+        'token',
+    ],
     'middleware' => [
         'web',
         'auth'
