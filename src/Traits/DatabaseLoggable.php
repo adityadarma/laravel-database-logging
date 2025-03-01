@@ -62,6 +62,10 @@ trait DatabaseLoggable
         $result = [];
 
         foreach ($columns as $column) {
+            if (array_key_exists($column, config('database-logging.exclude_column_logging_query', []))) {
+                continue;
+            }
+
             if ($event === 'create') {
                 $result[] = [
                     'column' => $column,
