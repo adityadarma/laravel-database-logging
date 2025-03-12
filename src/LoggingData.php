@@ -10,6 +10,7 @@ use JsonException;
 
 class LoggingData
 {
+    private static array $user = ['id' => null, 'class' => null];
     private static array $request = [];
     private static array $data = [];
     private static array $query = [];
@@ -67,6 +68,13 @@ class LoggingData
         }
 
         self::$request = array_merge($request->except(['_token', '_method']), $filesArray);
+
+        if ($guard = self::getGuard()) {
+            self::$user = [
+                'id' => auth($guard)->user()->getKey(),
+                'class' => auth($guard)->user()->getMorphClass(),
+            ];
+        }
     }
 
     /**
@@ -85,11 +93,9 @@ class LoggingData
             && count(self::$data)
         ){
             try {
-                $guard = self::getGuard();
-
                 DatabaseLogging::create([
-                    'loggable_id' => $guard ? auth($guard)->user()->getKey() : null,
-                    'loggable_type' => $guard ? auth($guard)->user()->getMorphClass() : null,
+                    'loggable_id' => self::$user['id'] ?? null,
+                    'loggable_type' => self::$user['class'] ?? null,
                     'host' => $request->host(),
                     'path' => $request->path(),
                     'agent' => $request->userAgent(),
