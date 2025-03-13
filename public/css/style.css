@@ -9,3 +9,9 @@
 .table td {
     font-size: 13px;
 }
+
+.table td,
+.table th {
+    word-wrap: break-word;
+    word-break: break-all;
+}
