@@ -69,7 +69,7 @@ To use the trait:
 1. Include the call in the head of your class file:
 
     ```php
-    use AdityaDarma\LaravelDatabaseLogging\Traits\DatabaseLoggable;
+    use \AdityaDarma\LaravelDatabaseLogging\Traits\DatabaseLoggable;
     ```
 
 2. Include the trait call in the opening of your class:
@@ -85,6 +85,14 @@ To use the trait:
 Set route access from file config `database-logging.php`
 
 * ```/database-logging```
+
+### Purge
+
+##### Remove data logger
+
+Set limit days data log from file config `database-logging.php` then run the command
+
+* ```database-logging:purge```
 
 ## License
 
