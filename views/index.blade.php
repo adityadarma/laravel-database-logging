@@ -35,8 +35,8 @@
                         <label for="table">Table</label>
                         <select class="form-control" name="table" id="table">
                             <option value="">- All -</option>
-                            @foreach($tables as $key => $table)
-                                <option value="{{ $key }}" {{ request()->table == $table ? 'selected' : '' }}>{{ $table }}</option>
+                            @foreach($tables as $table => $name)
+                                <option value="{{ $key }}" {{ request()->table == $table ? 'selected' : '' }}>{{ $name }}</option>
                             @endforeach
                         </select>
                     </div>

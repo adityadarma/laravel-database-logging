@@ -120,7 +120,7 @@ class LoggingData
     public static function getGuard(): string|null
     {
         $guards = config('auth.guards');
-        foreach($guards as $guard){
+        foreach(array_keys($guards) as $guard){
             if(auth($guard)->check()){
                 return $guard;
             }
