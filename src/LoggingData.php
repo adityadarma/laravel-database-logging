@@ -119,7 +119,7 @@ class LoggingData
      */
     public static function getGuard(): string|null
     {
-        $guards = config('database-logging.guards');
+        $guards = config('auth.guards');
         foreach($guards as $guard){
             if(auth($guard)->check()){
                 return $guard;
