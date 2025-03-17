@@ -55,7 +55,7 @@ class DatabaseLoggingController extends Controller
             default:
                 throw new Exception("Database driver tidak didukung.");
         }
-        sort($tables);
+        ksort($tables);
         $data['tables'] = $tables;
 
         $data['logs'] =  DatabaseLogging::with(['loggable'])
