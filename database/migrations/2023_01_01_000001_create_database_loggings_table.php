@@ -21,9 +21,9 @@ class CreateDatabaseLoggingsTable extends Migration
             $table->text('agent')->nullable();
             $table->ipAddress('ip_address')->nullable();
             $table->string('method',10);
-            $table->longText('data');
-            $table->longText('request');
-            $table->longText('response');
+            $table->json('data');
+            $table->json('request');
+            $table->json('response');
             $table->timestamps();
         });
     }

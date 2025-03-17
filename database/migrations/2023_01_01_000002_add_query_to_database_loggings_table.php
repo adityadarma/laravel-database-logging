@@ -14,7 +14,7 @@ class AddQueryToDatabaseLoggingsTable extends Migration
     public function up(): void
     {
         Schema::table('database_loggings', function (Blueprint $table) {
-            $table->longText('query')->nullable()->after('response');
+            $table->json('query')->nullable()->after('response');
         });
     }
 

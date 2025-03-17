@@ -121,8 +121,8 @@ class LoggingData
      */
     public static function getGuard(): ?string
     {
-        $guards = config('database-logging.guards');
-        foreach($guards as $guard){
+        $guards = config('auth.guards');
+        foreach(array_keys($guards) as $guard){
             if(auth($guard)->check()){
                 return $guard;
             }
