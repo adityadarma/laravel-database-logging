@@ -65,10 +65,12 @@ class DatabaseLoggingController extends Controller
                 $query->where('loggable_id', $exp[1] !== '' ? $exp[1] : null);
             })
             ->when($request->table, function ($query) use ($request) {
-                $query->whereJsonContains('data->table', $request->table);
+                $query->where('data', 'LIKE', '%"table":"'.$request->table.'"%');
+                // $query->whereJsonContains('data->table', $request->table);
             })
             ->when($request->id, function ($query) use ($request) {
-                $query->whereJsonContains('data->id', $request->id);
+                $query->where('data', 'LIKE', '%"id":"'.$request->id.'"%');
+                // $query->whereJsonContains('data->id', $request->id);
             })
             ->when($request->date_start, function ($query) use ($request) {
                 $query->where('created_at', '>=', $request->date_start.' 00:00:00');

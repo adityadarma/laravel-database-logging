@@ -3,19 +3,19 @@
         <h5 class="text-uppercase">Data</h5>
         <hr>
     </div>
-    @foreach($log->dataObject as $data)
+    @foreach($log['data'] as $data)
         <div class="col-md-12">
             <div class="card mb-3">
                 <table class="table-borderless w-100" style="background-color: #454d55; border-color: #454d55; color: #ffffff">
                     <tbody>
                         <tr>
-                            <td class="fs-4"><b>Table :</b> {{ $data->table }}</td>
+                            <td class="fs-4"><b>Table :</b> {{ $data['table'] }}</td>
                         </tr>
                         <tr>
-                            <td><b>Event :</b> {{ $data->event }}</td>
+                            <td><b>Event :</b> {{ $data['event'] }}</td>
                         </tr>
                         <tr>
-                            <td><b>ID :</b> {{ $data->id }}</td>
+                            <td><b>ID :</b> {{ $data['id'] }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -28,21 +28,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if($data->data)
-                        @foreach($data->data as $column)
+                    @if(isset($data['data']))
+                        @foreach($data['data'] as $column)
                             <tr>
-                                <td>{{ $column->column }}</td>
+                                <td>{{ $column['column'] }}</td>
 
-                                @if (is_array($column->old) || is_object($column->old))
-                                    <td>{!! "<pre>". e(print_r($column->old, true)) ."</pre>" !!}</td>
+                                @if (is_array($column['old']) || is_object($column['old']))
+                                    <td>{!! "<pre>". e(print_r($column['old'], true)) ."</pre>" !!}</td>
                                 @else
-                                    <td>{{ $column->old }}</td>
+                                    <td>{{ $column['old'] }}</td>
                                 @endif
 
-                                @if (is_array($column->new) || is_object($column->new))
-                                    <td>{!! "<pre>". e(print_r($column->new, true)) ."</pre>" !!}</td>
+                                @if (is_array($column['new']) || is_object($column['new']))
+                                    <td>{!! "<pre>". e(print_r($column['new'], true)) ."</pre>" !!}</td>
                                 @else
-                                    <td>{{ $column->new }}</td>
+                                    <td>{{ $column['new'] }}</td>
                                 @endif
                             </tr>
                         @endforeach
@@ -68,8 +68,8 @@
                 </tr>
             </thead>
             <tbody>
-            @if($log->requestObject)
-                @foreach($log->requestObject as $key => $value)
+            @if(isset($log['request']))
+                @foreach($log['request'] as $key => $value)
                     <tr>
                         <td class="font-weight-bold">{{ $key }}</td>
 
@@ -100,8 +100,8 @@
                 </tr>
             </thead>
             <tbody>
-            @if($log->responseObject)
-                @foreach($log->responseObject as $name => $value)
+            @if(isset($log['response']))
+                @foreach($log['response'] as $name => $value)
                     <tr>
                         <td class="font-weight-bold">{{ $name }}</td>
 
@@ -118,7 +118,7 @@
     </div>
 </div>
 
-@if($log->query)
+@if(isset($log['query']))
 <div class="row pt-5">
     <div class="col-md-12">
         <h5 class="text-uppercase">Query</h5>
@@ -133,10 +133,10 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($log->queryObject as $key => $value)
+            @foreach($log['query'] as $key => $value)
                 <tr>
-                    <td>{{ $value->query }}</td>
-                    <td>{{ $value->time }}</td>
+                    <td>{{ $value['query'] }}</td>
+                    <td>{{ $value['time'] }}</td>
                 </tr>
             @endforeach
             </tbody>

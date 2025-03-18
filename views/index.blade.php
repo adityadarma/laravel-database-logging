@@ -76,15 +76,15 @@
                             @foreach($logs as $key => $log)
                                 <tr data-toggle="collapse" data-target="#collapse{{$key}}" aria-expanded="true" aria-controls="collapse{{$key}}">
                                     <th scope="row">{{ $logs->firstItem() + $key }}</th>
-                                    <td>{{ $log->name }}</td>
+                                    <td>{{ $log['name'] }}</td>
                                     <td>
-                                        <b>IP:</b> {{ $log->ip_address }}<br>
-                                        <b>Agent:</b> {{ $log->agent }}<br>
-                                        <b>Host:</b> {{ $log->host }}<br>
-                                        <b>Path:</b> {{ $log->path }}<br>
+                                        <b>IP:</b> {{ $log['ip_address'] }}<br>
+                                        <b>Agent:</b> {{ $log['agent'] }}<br>
+                                        <b>Host:</b> {{ $log['host'] }}<br>
+                                        <b>Path:</b> {{ $log['path'] }}<br>
                                     </td>
-                                    <td>{{ $log->method }}</td>
-                                    <td>{{ $log->date_create }}</td>
+                                    <td>{{ $log['method'] }}</td>
+                                    <td>{{ $log['date_created'] }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="5" id="collapse{{$key}}" class="collapse acc" data-parent="#accordion">
