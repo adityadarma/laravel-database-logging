@@ -20,7 +20,7 @@ class DatabaseLoggingController extends Controller
             ->get();
 
         // Table
-        $connection = config('database-logging.database_connection');
+        $connection = config('database.default');
         $tables = [];
         switch ($connection) {
             case 'mysql':

@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Schema;
 class CreateDatabaseLoggingsTable extends Migration
 {
     /**
+     * The database connection that should be used by the migration.
+     *
+     * @var string
+     */
+    protected $connection = config('database-logging.database_logging');
+
+    /**
      * Run the migrations.
      *
      * @return void
