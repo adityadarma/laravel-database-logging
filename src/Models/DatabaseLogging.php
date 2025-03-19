@@ -8,6 +8,21 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class DatabaseLogging extends Model
 {
     /**
+     * The database connection that should be used by the model.
+     *
+     * @var string
+     */
+    protected $connection;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        // Set koneksi dari konfigurasi
+        $this->connection = config('database-logging.connection_logging');
+    }
+
+    /**
      * The table associated with the model.
      *
      * @var string

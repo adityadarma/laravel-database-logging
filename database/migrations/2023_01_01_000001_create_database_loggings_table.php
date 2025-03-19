@@ -11,7 +11,12 @@ class CreateDatabaseLoggingsTable extends Migration
      *
      * @var string
      */
-    protected $connection = config('database-logging.database_logging');
+    protected $connection;
+
+    public function __construct()
+    {
+        $this->connection = config('database-logging.connection_logging');
+    }
 
     /**
      * Run the migrations.

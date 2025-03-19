@@ -98,7 +98,7 @@ class LoggingData
                 DatabaseLogging::create([
                     'loggable_id' => self::$user['id'] ?? null,
                     'loggable_type' => self::$user['class'] ?? null,
-                    'host' => $request->getHost(),
+                    'host' => $request->getSchemeAndHttpHost(),
                     'path' => $request->path(),
                     'agent' => $request->userAgent(),
                     'ip_address' => $request->ip(),
