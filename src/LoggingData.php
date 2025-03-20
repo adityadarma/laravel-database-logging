@@ -96,15 +96,15 @@ class LoggingData
                 DatabaseLogging::create([
                     'loggable_id' => self::$user['id'] ?? null,
                     'loggable_type' => self::$user['class'] ?? null,
-                    'host' => $request->host(),
+                    'host' => $request->getSchemeAndHttpHost(),
                     'path' => $request->path(),
                     'agent' => $request->userAgent(),
                     'ip_address' => $request->ip(),
                     'method' => $request->method(),
-                    'data' => json_encode(self::$data, JSON_THROW_ON_ERROR),
-                    'request' => json_encode(self::$request, JSON_THROW_ON_ERROR),
-                    'response' => $request->expectsJson() ? $response->getContent() : json_encode([], JSON_THROW_ON_ERROR),
-                    'query' => json_encode(self::$query, JSON_THROW_ON_ERROR),
+                    'data' => self::$data,
+                    'request' => self::$request,
+                    'response' => $request->expectsJson() ? [json_decode($response->getContent())] : [],
+                    'query' => self::$query,
                 ]);
             } catch (Exception $e){
                 Log::error($e->getMessage());

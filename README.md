@@ -35,6 +35,18 @@ ENABLE_LOGGING=true
 LOGGING_QUERY=false
 ```
 
+##### Log table other database
+If you want to separate the logging table into another database, please add this:
+
+```dotenv
+DB_CONNECTION_LOGGING=logging
+DB_HOST_LOGGING=
+DB_PORT_LOGGING=
+DB_DATABASE_LOGGING=
+DB_USERNAME_LOGGING=
+DB_PASSWORD_LOGGING=
+```
+
 ### Usage
 
 ##### Middleware Usage
@@ -51,12 +63,6 @@ Example to start recording page views using middleware in `web.php`:
 Route::group(['middleware' => ['web', 'capture-logging']], function () {
     Route::get('/', 'WelcomeController@welcome')->name('welcome');
 });
-```
-
-or you can add middleware class on kernel application
-
-```php
-\AdityaDarma\LaravelDatabaseLogging\Middleware\CaptureLogging::class
 ```
 
 This middleware can be enabled/disabled in the configuration settings.
