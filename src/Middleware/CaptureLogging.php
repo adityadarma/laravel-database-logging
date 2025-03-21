@@ -24,7 +24,9 @@ class CaptureLogging
 
         $response = $next($request);
 
-        LoggingData::store($request, $response);
+        if ($response->getStatusCode() >= 400) {
+            LoggingData::store($request, $response);
+        }
 
         return $response;
     }
