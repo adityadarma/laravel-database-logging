@@ -4,9 +4,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Middleware;
 
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 use Closure;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 
