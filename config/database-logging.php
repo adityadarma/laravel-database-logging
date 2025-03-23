@@ -35,6 +35,5 @@ return [
     ],
     'route_controller' => AdityaDarma\LaravelDatabaseLogging\Controllers\DatabaseLoggingController::class,
     'route_path' => '/database-logging',
-    'assets_path' => 'assets/database-logging',
     'duration' => 30, // days
 ];

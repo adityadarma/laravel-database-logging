@@ -12,14 +12,9 @@ class DatabaseLogging extends Model
      *
      * @var string
      */
-    protected $connection;
-
-    public function __construct(array $attributes = [])
+    public function getConnectionName()
     {
-        parent::__construct($attributes);
-
-        // Set koneksi dari konfigurasi
-        $this->connection = config('database-logging.connection_logging');
+        return config('database-logging.connection_logging', $this->connection);
     }
 
     /**

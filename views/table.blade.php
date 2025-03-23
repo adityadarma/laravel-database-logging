@@ -22,9 +22,9 @@
                 <table class="w-100">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Column</th>
-                            <th style="width: 35%">Old</th>
-                            <th style="width: 35%">New</th>
+                            <th style="width: 30%">Column</th>
+                            <th style="min-width: 100px">Old</th>
+                            <th style="min-width: 100px">New</th>
                         </tr>
                     </thead>
                     <tbody>
