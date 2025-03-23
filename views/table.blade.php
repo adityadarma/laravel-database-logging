@@ -129,7 +129,7 @@
             <thead class="thead-dark">
             <tr>
                 <th class="w-75">Execute</th>
-                <th>Time (second)</th>
+                <th>Time (ms)</th>
             </tr>
             </thead>
             <tbody>
