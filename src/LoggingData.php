@@ -46,35 +46,37 @@ class LoggingData
     public static function request(Request $request): void
     {
         // Upload file
-        $files = $request->allFiles();
-        $filesArray = [];
-        foreach ($files as $key => $file) {
-            if (is_array($file)) {
-                foreach ($file as $item) {
-                    $filesArray[$key][] = [
-                        'name' => $item->getClientOriginalName(),
-                        'size' => $item->getSize(),
-                        'mime_type' => $item->getMimeType(),
+        try {
+            $files = $request->allFiles();
+            $filesArray = [];
+            foreach ($files as $key => $file) {
+                if (is_array($file)) {
+                    foreach ($file as $item) {
+                        $filesArray[$key][] = [
+                            'name' => $item->getClientOriginalName(),
+                            'size' => $item->getSize(),
+                            'mime_type' => $item->getMimeType(),
+                        ];
+                    }
+                }
+                else {
+                    $filesArray[$key] = [
+                        'name' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime_type' => $file->getMimeType(),
                     ];
                 }
             }
-            else {
-                $filesArray[$key] = [
-                    'name' => $file->getClientOriginalName(),
-                    'size' => $file->getSize(),
-                    'mime_type' => $file->getMimeType(),
+
+            self::$request = array_merge($request->except(['_token', '_method']), $filesArray);
+
+            if ($guard = self::getGuard()) {
+                self::$user = [
+                    'id' => auth($guard)->user()->getKey(),
+                    'class' => auth($guard)->user()->getMorphClass(),
                 ];
             }
-        }
-
-        self::$request = array_merge($request->except(['_token', '_method']), $filesArray);
-
-        if ($guard = self::getGuard()) {
-            self::$user = [
-                'id' => auth($guard)->user()->getKey(),
-                'class' => auth($guard)->user()->getMorphClass(),
-            ];
-        }
+        } catch (\Throwable $th) {}
     }
 
     /**

@@ -35,18 +35,6 @@ ENABLE_LOGGING=true
 LOGGING_QUERY=false
 ```
 
-##### Log table other database
-If you want to separate the logging table into another database, please add this:
-
-```dotenv
-DB_CONNECTION_LOGGING=logging
-DB_HOST_LOGGING=
-DB_PORT_LOGGING=
-DB_DATABASE_LOGGING=
-DB_USERNAME_LOGGING=
-DB_PASSWORD_LOGGING=
-```
-
 ### Usage
 
 ##### Middleware Usage

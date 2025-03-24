@@ -8,16 +8,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class DatabaseLogging extends Model
 {
     /**
-     * The database connection that should be used by the model.
-     *
-     * @var string
-     */
-    public function getConnectionName()
-    {
-        return config('database-logging.connection_logging', $this->connection);
-    }
-
-    /**
      * The table associated with the model.
      *
      * @var string
