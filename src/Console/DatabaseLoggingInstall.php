@@ -44,24 +44,6 @@ class DatabaseLoggingInstall extends Command
             $this->publishConfig();
             $this->info("config published");
         }
-
-        $this->line('-----------------------------');
-
-        //assets
-        if (File::exists(public_path(config('database-logging.assets_path')))) {
-            $confirm = $this->confirm("assets folder already exist. Do you want to overwrite?");
-            if ($confirm) {
-                $this->publishAssets();
-                $this->info("assets overwrite finished");
-            }
-            else {
-                $this->info("skipped assets publish");
-            }
-        }
-        else {
-            $this->publishAssets();
-            $this->info("assets published");
-        }
     }
 
     private function publishConfig(): void
@@ -69,15 +51,6 @@ class DatabaseLoggingInstall extends Command
         $this->call('vendor:publish', [
             '--provider' => LaravelDatabaseLoggingServiceProvider::class,
             '--tag'      => 'config',
-            '--force'    => true
-        ]);
-    }
-
-    private function publishAssets(): void
-    {
-        $this->call('vendor:publish', [
-            '--provider' => LaravelDatabaseLoggingServiceProvider::class,
-            '--tag'      => 'assets',
             '--force'    => true
         ]);
     }

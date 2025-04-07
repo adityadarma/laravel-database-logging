@@ -45,35 +45,40 @@ class LoggingData
      */
     public static function request(Request $request): void
     {
-        // Upload file
-        $files = $request->allFiles();
-        $filesArray = [];
-        foreach ($files as $key => $file) {
-            if (is_array($file)) {
-                foreach ($file as $item) {
-                    $filesArray[$key][] = [
-                        'name' => $item->getClientOriginalName(),
-                        'size' => $item->getSize(),
-                        'mime_type' => $item->getMimeType(),
+        if (config('database-logging.enable_logging', true)) {
+            try {
+                $files = $request->allFiles();
+                $filesArray = [];
+                foreach ($files as $key => $file) {
+                    if (is_array($file)) {
+                        foreach ($file as $item) {
+                            $filesArray[$key][] = [
+                                'name' => $item->getClientOriginalName(),
+                                'size' => $item->getSize(),
+                                'mime_type' => $item->getMimeType(),
+                            ];
+                        }
+                    }
+                    else {
+                        $filesArray[$key] = [
+                            'name' => $file->getClientOriginalName(),
+                            'size' => $file->getSize(),
+                            'mime_type' => $file->getMimeType(),
+                        ];
+                    }
+                }
+
+                self::$request = array_merge($request->except(['_token', '_method']), $filesArray);
+
+                if ($guard = self::getGuard()) {
+                    self::$user = [
+                        'id' => auth($guard)->user()->getKey(),
+                        'class' => auth($guard)->user()->getMorphClass(),
                     ];
                 }
+            } catch (Exception $e){
+                Log::error($e->getMessage());
             }
-            else {
-                $filesArray[$key] = [
-                    'name' => $file->getClientOriginalName(),
-                    'size' => $file->getSize(),
-                    'mime_type' => $file->getMimeType(),
-                ];
-            }
-        }
-
-        self::$request = array_merge($request->except(['_token', '_method']), $filesArray);
-
-        if ($guard = self::getGuard()) {
-            self::$user = [
-                'id' => auth($guard)->user()->getKey(),
-                'class' => auth($guard)->user()->getMorphClass(),
-            ];
         }
     }
 
@@ -91,8 +96,10 @@ class LoggingData
             config('database-logging.enable_logging', true)
             && in_array($request->method(), config('database-logging.method'), true)
             && count(self::$data)
-        ){
+        ) {
             try {
+                $guard = self::getGuard();
+
                 DatabaseLogging::create([
                     'loggable_id' => self::$user['id'] ?? null,
                     'loggable_type' => self::$user['class'] ?? null,
@@ -103,7 +110,7 @@ class LoggingData
                     'method' => $request->method(),
                     'data' => self::$data,
                     'request' => self::$request,
-                    'response' => $request->expectsJson() ? [json_decode($response->getContent())] : [],
+                    'response' => $request->expectsJson() ? json_decode($response->getContent()) : [],
                     'query' => self::$query,
                 ]);
             } catch (Exception $e){
@@ -117,7 +124,7 @@ class LoggingData
      *
      * @return string|null
      */
-    public static function getGuard(): string|null
+    public static function getGuard(): ?string
     {
         $guards = config('auth.guards');
         foreach(array_keys($guards) as $guard){

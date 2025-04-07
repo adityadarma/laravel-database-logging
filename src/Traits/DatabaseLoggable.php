@@ -14,7 +14,7 @@ trait DatabaseLoggable
      */
     protected static function bootDatabaseLoggable(): void
     {
-        if (config('database-logging.log_events.create', false)) {
+        if (config('database-logging.log_events.create', false) && config('database-logging.enable_logging', true)) {
             static::created(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
@@ -25,7 +25,7 @@ trait DatabaseLoggable
             });
         }
 
-        if (config('database-logging.log_events.update', false)) {
+        if (config('database-logging.log_events.update', false) && config('database-logging.enable_logging', true)) {
             static::updated(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),
@@ -36,7 +36,7 @@ trait DatabaseLoggable
             });
         }
 
-        if (config('database-logging.log_events.delete', false)) {
+        if (config('database-logging.log_events.delete', false) && config('database-logging.enable_logging', true)) {
             static::deleted(function (Model $model) {
                 LoggingData::setData([
                     'table' => $model->getTable(),

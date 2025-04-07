@@ -8,26 +8,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * The database connection that should be used by the migration.
-     *
-     * @var string
-     */
-    protected $connection;
-
-    public function __construct()
-    {
-        $this->connection = config('database-logging.connection_logging');
-    }
-
-    /**
      * Run the migrations.
      *
      * @return void
      */
     public function up(): void
     {
-        Builder::$defaultMorphKeyType = config('database-logging.morph_key_type');
-
         Schema::create('database_loggings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->nullableMorphs('loggable');

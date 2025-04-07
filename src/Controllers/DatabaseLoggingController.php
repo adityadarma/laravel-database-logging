@@ -58,20 +58,11 @@ class DatabaseLoggingController extends Controller
         ksort($tables);
         $data['tables'] = $tables;
 
-        // Logs
         $data['logs'] =  DatabaseLogging::with(['loggable'])
             ->when($request->user, function ($query) use ($request) {
                 $exp = explode('|', $request->user);
                 $query->where('loggable_type', $exp[0] !== '' ? $exp[0] : null);
                 $query->where('loggable_id', $exp[1] !== '' ? $exp[1] : null);
-            })
-            ->when($request->table, function ($query) use ($request) {
-                $query->where('data', 'LIKE', '%"table":"'.$request->table.'"%');
-                // $query->whereJsonContains('data->table', $request->table);
-            })
-            ->when($request->id, function ($query) use ($request) {
-                $query->where('data', 'LIKE', '%"id":"'.$request->id.'"%');
-                // $query->whereJsonContains('data->id', $request->id);
             })
             ->when($request->date_start, function ($query) use ($request) {
                 $query->where('created_at', '>=', $request->date_start.' 00:00:00');
@@ -80,8 +71,7 @@ class DatabaseLoggingController extends Controller
                 $query->where('created_at', '<=', $request->date_end.' 23:59:59');
             })
             ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
 
         return view('LaravelDatabaseLogging::index', $data);
     }

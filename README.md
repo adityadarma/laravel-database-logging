@@ -11,8 +11,8 @@ Laravel Database Logging is a feature that allows developers to store applicatio
 2. Install config and asset to record the activities to:
 
     ```bash
-     php artisan database-logging:install
-   ```
+    php artisan database-logging:install
+    ```
 
 3. Run the migration to add the table to record, before running please check morph key type on config to set type column:
    
@@ -33,18 +33,6 @@ Here are the `.env` file variables available:
 ```dotenv
 ENABLE_LOGGING=true
 LOGGING_QUERY=false
-```
-
-##### Log table other database
-If you want to separate the logging table into another database, please add this:
-
-```dotenv
-DB_CONNECTION_LOGGING=logging
-DB_HOST_LOGGING=
-DB_PORT_LOGGING=
-DB_DATABASE_LOGGING=
-DB_USERNAME_LOGGING=
-DB_PASSWORD_LOGGING=
 ```
 
 ### Usage
@@ -88,7 +76,7 @@ To use the trait:
 
 ##### Laravel Activity Dashboard Routes
 
-Set route access from file config `database-logging.php` 
+Set route access from file config `database-logging.php`
 
 * ```/database-logging```
 
