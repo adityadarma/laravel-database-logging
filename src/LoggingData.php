@@ -110,7 +110,7 @@ class LoggingData
                     'method' => $request->method(),
                     'data' => self::$data,
                     'request' => self::$request,
-                    'response' => $request->expectsJson() ? json_decode($response->getContent()) : [],
+                    'response' => $request->expectsJson() ? [json_decode($response->getContent())] : [],
                     'query' => self::$query,
                 ]);
             } catch (Exception $e){
