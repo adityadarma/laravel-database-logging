@@ -85,9 +85,10 @@ class DatabaseLoggingController extends Controller
                 $query->where('data', 'like', '%'.$request->search['value'].'%');
             });
         $data['recordsFiltered'] = $querySearch->count();
-        $data['data'] = $query
-            ->offset($request->start * $request->lenght)
+        $data['data'] = $querySearch
+            ->offset($request->start)
             ->limit($request->length)
+            ->latest()
             ->get()
             ->map(function ($item) use (&$lastIndex) {
                 $lastIndex++;
