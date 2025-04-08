@@ -5,6 +5,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Controllers;
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -58,21 +59,64 @@ class DatabaseLoggingController extends Controller
         ksort($tables);
         $data['tables'] = $tables;
 
-        $data['logs'] =  DatabaseLogging::with(['loggable'])
+        return view('LaravelDatabaseLogging::index', $data);
+    }
+
+    public function datatable(Request $request): JsonResponse
+    {
+        $lastIndex = (int)$request->start;
+        $query =  DatabaseLogging::with(['loggable'])
             ->when($request->user, function ($query) use ($request) {
                 $exp = explode('|', $request->user);
                 $query->where('loggable_type', $exp[0] !== '' ? $exp[0] : null);
                 $query->where('loggable_id', $exp[1] !== '' ? $exp[1] : null);
             })
-            ->when($request->date_start, function ($query) use ($request) {
-                $query->where('created_at', '>=', $request->date_start.' 00:00:00');
+            ->when($request->start_date, function ($query) use ($request) {
+                $query->where('created_at', '>=', $request->start_date.' 00:00:00');
             })
-            ->when($request->date_end, function ($query) use ($request) {
-                $query->where('created_at', '<=', $request->date_end.' 23:59:59');
-            })
-            ->latest()
-            ->get();
+            ->when($request->end_date, function ($query) use ($request) {
+                $query->where('created_at', '<=', $request->end_date.' 23:59:59');
+            });
+        $data['draw'] = $request->draw;
+        $data['recordsTotal'] = $query->count();
 
-        return view('LaravelDatabaseLogging::index', $data);
+        $querySearch = $query
+            ->when($request->search['value'], function ($query) use ($request) {
+                $query->where('data', 'like', '%'.$request->search['value'].'%');
+            });
+        $data['recordsFiltered'] = $querySearch->count();
+        $data['data'] = $query
+            ->offset($request->start * $request->lenght)
+            ->limit($request->length)
+            ->get()
+            ->map(function ($item) use (&$lastIndex) {
+                $lastIndex++;
+                $table =  view('LaravelDatabaseLogging::table', ['log' => $item])->render();
+                return [
+                    'DT_RowIndex' => $lastIndex,
+                    'DT_RowAttr' => [
+                        'data-toggle' => "collapse",
+                        'data-target' => "#collapse$lastIndex",
+                        'aria-expanded' => "true",
+                        'aria-controls' => "collapse$lastIndex"
+                    ],
+                    'user' => $item->name,
+                    'content' => "
+                        <b>Date:</b> $item->date_created<br>
+                        <b>IP:</b> $item->ip_address<br>
+                        <b>Agent:</b> $item->agent<br>
+                        <b>Host:</b> $item->host<br>
+                        <b>Path:</b> $item->path<br>
+                        <b>Method:</b> $item->method<br>
+                        <table>
+                            <td colspan='5' id='collapse$lastIndex' class='collapse acc' data-parent=''#accordion'>
+                                $table
+                            </td>
+                        </table>
+                    ",
+                ];
+            });
+
+        return response()->json($data);
     }
 }
