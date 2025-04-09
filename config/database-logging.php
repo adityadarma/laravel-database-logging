@@ -34,5 +34,5 @@ return [
     ],
     'route_controller' => AdityaDarma\LaravelDatabaseLogging\Controllers\DatabaseLoggingController::class,
     'route_path' => '/database-logging',
-    'duration' => 30, // days
+    'duration' => env('DURATION_LOGGING', 30), // days
 ];

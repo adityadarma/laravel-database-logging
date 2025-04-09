@@ -33,6 +33,7 @@ Here are the `.env` file variables available:
 ```dotenv
 ENABLE_LOGGING=true
 LOGGING_QUERY=false
+DURATION_LOGGING=30
 ```
 
 ### Usage
