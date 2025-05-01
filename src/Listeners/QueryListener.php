@@ -13,7 +13,7 @@ class QueryListener
         $sql = $event->sql;
         $bindings = $event->bindings;
 
-        if (config('database-logging.logging_query') && !$this->shouldExcludeQuery($sql)) {
+        if (config('database-logging.query_logging') && !$this->shouldExcludeQuery($sql)) {
             LoggingData::setQuery([
                 'query' => $this->replaceBindings($sql, $bindings),
                 'time' => $event->time
@@ -23,7 +23,7 @@ class QueryListener
 
     protected function shouldExcludeQuery($sql): bool
     {
-        foreach (config('database-logging.exclude_table_logging_query') as $excludedTable) {
+        foreach (config('database-logging.exclude_table_query_logging') as $excludedTable) {
             if (stripos($sql, "INSERT INTO `$excludedTable`") !== false) {
                 return true;
             }
