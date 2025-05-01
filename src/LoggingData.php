@@ -95,11 +95,10 @@ class LoggingData
         if (
             config('database-logging.enable_logging', true)
             && in_array($request->method(), config('database-logging.method'), true)
-            && count(self::$data)
+            && $response->getStatusCode() >= 200
+            && $response->getStatusCode() <= 299
         ) {
             try {
-                $guard = self::getGuard();
-
                 DatabaseLogging::create([
                     'loggable_id' => self::$user['id'] ?? null,
                     'loggable_type' => self::$user['class'] ?? null,
@@ -110,7 +109,7 @@ class LoggingData
                     'method' => $request->method(),
                     'data' => self::$data,
                     'request' => self::$request,
-                    'response' => $request->expectsJson() ? json_decode($response->getContent()) : null,
+                    'response' => $request->expectsJson() ? json_decode($response->getContent()) : [],
                     'query' => self::$query,
                 ]);
             } catch (Exception $e){

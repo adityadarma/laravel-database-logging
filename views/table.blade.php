@@ -127,16 +127,16 @@
     <div class="col-md-12">
         <table class="w-100 table-borderless">
             <thead class="thead-dark">
-            <tr>
-                <th class="w-75">Execute</th>
-                <th>Time (ms)</th>
-            </tr>
+                <tr>
+                    <th>Execute</th>
+                    <th style="width: 100px;">Time (ms)</th>
+                </tr>
             </thead>
             <tbody>
             @foreach($log['query'] as $key => $value)
                 <tr>
                     <td>{{ $value['query'] }}</td>
-                    <td>{{ $value['time'] }}</td>
+                    <td class="text-right">{{ $value['time'] }}</td>
                 </tr>
             @endforeach
             </tbody>

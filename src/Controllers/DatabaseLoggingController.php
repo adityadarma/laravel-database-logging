@@ -109,7 +109,7 @@ class DatabaseLoggingController extends Controller
                         <b>Host:</b> $item->host<br>
                         <b>Path:</b> $item->path<br>
                         <b>Method:</b> $item->method<br>
-                        <table>
+                        <table class='w-100'>
                             <td colspan='5' id='collapse$lastIndex' class='collapse acc' data-parent=''#accordion'>
                                 $table
                             </td>

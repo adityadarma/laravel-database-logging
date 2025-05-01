@@ -2,12 +2,12 @@
 
 return [
     'enable_logging' => env('ENABLE_LOGGING', true),
-    'logging_query' => env('LOGGING_QUERY', false),
+    'query_logging' => env('QUERY_LOGGING', false),
     'morph_key_type' => 'int', // available int, uuid, ulid
-    'exclude_table_logging_query' => [
+    'exclude_table_query_logging' => [
         'migrations'
     ],
-    'exclude_column_logging_query' => [
+    'exclude_column_query_logging' => [
         'password',
         'remember_token',
         'token',
