@@ -2,3 +2,7 @@
 /.idea
 composer.lock
 .DS_store
+/coverage
+/build
+.phpunit.cache
+.phpunit.result.cache
