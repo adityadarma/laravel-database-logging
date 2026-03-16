@@ -38,6 +38,29 @@ class LoggingData
     }
 
     /**
+     * Get query data
+     *
+     * @return array
+     */
+    public static function getQuery(): array
+    {
+        return self::$query;
+    }
+
+    /**
+     * Reset all static data
+     *
+     * @return void
+     */
+    public static function reset(): void
+    {
+        self::$user = ['id' => null, 'class' => null];
+        self::$request = [];
+        self::$data = [];
+        self::$query = [];
+    }
+
+    /**
      * Save request
      *
      * @param Request $request

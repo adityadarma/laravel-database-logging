@@ -1,4 +1,9 @@
 # Laravel Activity Logger
+
+[![Tests](https://github.com/adityadarma/laravel-database-logging/workflows/Tests/badge.svg)](https://github.com/adityadarma/laravel-database-logging/actions)
+[![Latest Stable Version](https://poser.pugx.org/adityadarma/laravel-database-logging/v/stable)](https://packagist.org/packages/adityadarma/laravel-database-logging)
+[![License](https://poser.pugx.org/adityadarma/laravel-database-logging/license)](https://packagist.org/packages/adityadarma/laravel-database-logging)
+
 Laravel Database Logging is a feature that allows developers to store application logs in a database, rather than the default file-based storage. This feature provides a structured and organized approach to managing application logs, making it easier to query and analyze them.
 
 ### Laravel Installation Instructions
@@ -31,6 +36,7 @@ Or you can variables to your `.env` file.
 Here are the `.env` file variables available:
 
 ```dotenv
+CONNECTION_LOGGING=mysql // remove if same connection
 ENABLE_LOGGING=true
 QUERY_LOGGING=false
 DURATION_LOGGING=30

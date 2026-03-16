@@ -13,12 +13,26 @@
     ],
     "require": {
         "php": "^8.0",
-        "laravel/framework": "^9.0|^10.0|^11.0"
+        "laravel/framework": "^9.0|^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5|^10.0",
+        "orchestra/testbench": "^7.0|^8.0|^9.0",
+        "mockery/mockery": "^1.5"
     },
     "autoload": {
         "psr-4": {
             "AdityaDarma\\LaravelDatabaseLogging\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AdityaDarma\\LaravelDatabaseLogging\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
     },
     "extra": {
         "laravel": {

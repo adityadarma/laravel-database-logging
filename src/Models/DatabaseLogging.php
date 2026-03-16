@@ -4,9 +4,17 @@ namespace AdityaDarma\LaravelDatabaseLogging\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Log;
 
 class DatabaseLogging extends Model
 {
+    /**
+     * The database connection that should be used by the model.
+     *
+     * @var string
+     */
+    protected $connection;
+
     /**
      * The table associated with the model.
      *
@@ -20,8 +28,9 @@ class DatabaseLogging extends Model
      * @var array
      */
     protected $fillable = [
-        'loggable_id',
         'loggable_type',
+        'loggable_id',
+        'user_name',
         'host',
         'path',
         'agent',
@@ -54,19 +63,31 @@ class DatabaseLogging extends Model
         'query' => 'array',
     ];
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->connection = config('database-logging.connection_logging');
+    }
+
     public function loggable(): MorphTo
     {
         return $this->morphTo('loggable');
     }
 
-    public function getNameAttribute(): string
+    public function getNameAttribute(): string | null
     {
-        foreach (config('database-logging.model') as $model => $name) {
-            if ($this->loggable_type === $model) {
-                return $this->loggable->$name ?? '';
+        try {
+            foreach (config('database-logging.model') as $model => $name) {
+                if ($this->loggable_type === $model && config('database.default') === config('database-logging.connection_logging')) {
+                    return $this->loggable->$name ?? '';
+                }
             }
+            return $this->user_name;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return $this->user_name;
         }
-        return '';
     }
 
     public function getDateCreatedAttribute(): string
