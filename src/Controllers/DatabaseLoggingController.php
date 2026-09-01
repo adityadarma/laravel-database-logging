@@ -47,33 +47,60 @@ class DatabaseLoggingController extends Controller
         $driver = $connection->getDriverName();
 
         $names = match ($driver) {
-            'mysql', 'mariadb' => array_map(
-                // reset() on a stdClass is deprecated as of PHP 8.1, and the
-                // column of SHOW TABLES is named after the database
-                static fn ($row) => reset(((array) $row)) ?: null,
+            // SHOW TABLES names its only column after the database
+            // ("Tables_in_prod"), so the value is read positionally
+            'mysql', 'mariadb' => $this->pluckNames(
                 $connection->select('SHOW TABLES')
             ),
-            'pgsql' => array_map(
-                static fn ($row) => ((array) $row)['tablename'] ?? null,
-                $connection->select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = current_schema()")
+            'pgsql' => $this->pluckNames(
+                $connection->select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = current_schema()"),
+                'tablename'
             ),
-            'sqlsrv' => array_map(
-                static fn ($row) => ((array) $row)['TABLE_NAME'] ?? null,
-                $connection->select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
+            'sqlsrv' => $this->pluckNames(
+                $connection->select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"),
+                'TABLE_NAME'
             ),
-            'sqlite' => array_map(
-                static fn ($row) => ((array) $row)['name'] ?? null,
-                $connection->select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+            'sqlite' => $this->pluckNames(
+                $connection->select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"),
+                'name'
             ),
             default => throw new Exception("Database driver [$driver] tidak didukung."),
         };
 
         $tables = [];
-        foreach (array_filter($names) as $name) {
+        foreach ($names as $name) {
             $tables[$name] = ucwords(str_replace('_', ' ', $name));
         }
 
         return $tables;
+    }
+
+    /**
+     * Read a table name out of every result row.
+     *
+     * @param array $rows
+     * @param string|null $key column to read, or null to take the first value
+     * @return array<int, string>
+     */
+    protected function pluckNames(array $rows, ?string $key = null): array
+    {
+        $names = [];
+
+        foreach ($rows as $row) {
+            // assigned to a variable first: reset() takes its argument by
+            // reference and a cast expression cannot be passed by reference
+            $values = (array) $row;
+
+            $name = $key !== null
+                ? ($values[$key] ?? null)
+                : (array_values($values)[0] ?? null);
+
+            if (is_string($name) && $name !== '') {
+                $names[] = $name;
+            }
+        }
+
+        return $names;
     }
 
     public function datatable(Request $request): JsonResponse
