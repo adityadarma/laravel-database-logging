@@ -71,6 +71,13 @@ Which column holds the display name is set per model in `database-logging.php`:
 ],
 ```
 
+Note on the `loggable` relation: Eloquent forces a `morphTo` related model onto
+the parent's connection when that model declares no connection of its own
+(`MorphTo::createModelByType`). With a separate logging database `$log->loggable`
+would therefore look for your users table inside the logging database. Use
+`$log->resolveLoggable()`, which queries the related model on its own
+connection, or read `$log->name` which already does it for you.
+
 ### Usage
 
 ##### Middleware Usage

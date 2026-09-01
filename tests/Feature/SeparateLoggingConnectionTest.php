@@ -9,6 +9,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -51,6 +52,11 @@ class SeparateLoggingConnectionTest extends Orchestra
             SeparateConnectionUser::class => 'name',
         ]);
         $app['config']->set('auth.providers.users.model', SeparateConnectionUser::class);
+
+        // routes are registered at boot, so the middleware has to be relaxed
+        // here rather than inside the test body
+        $app['config']->set('database-logging.middleware', []);
+        $app['config']->set('app.key', 'base64:' . base64_encode(random_bytes(32)));
     }
 
     protected function setUp(): void
@@ -109,5 +115,109 @@ class SeparateLoggingConnectionTest extends Orchestra
 
         // this is the thing that breaks with a separate logging DB
         $this->assertSame('Aditya Darma', $log->name);
+    }
+
+    /**
+     * Rows written before user_name existed have to fall back to the related
+     * record, which lives in the *other* database. MorphTo cannot do this:
+     * createModelByType() pushes the related model onto the parent connection
+     * whenever it declares none, so the lookup used to run as
+     * "select * from users" against the logging database.
+     */
+    public function test_name_falls_back_to_the_other_connection_when_snapshot_is_null(): void
+    {
+        $user = SeparateConnectionUser::on('main')->create([
+            'name' => 'Aditya Darma',
+            'email' => 'a@b.c',
+            'password' => 'secret',
+        ]);
+
+        DatabaseLogging::query()->insert([
+            'loggable_type' => SeparateConnectionUser::class,
+            'loggable_id' => $user->getKey(),
+            'user_name' => null,
+            'host' => 'http://localhost',
+            'path' => 'orders',
+            'method' => 'POST',
+            'data' => '[]',
+            'request' => '[]',
+            'response' => '[]',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DatabaseLogging::flushLoggableCache();
+
+        $log = DatabaseLogging::query()->firstOrFail();
+
+        $this->assertNull($log->getRawOriginal('user_name'));
+        $this->assertSame('Aditya Darma', $log->name);
+    }
+
+    public function test_resolved_actor_is_only_fetched_once_per_page(): void
+    {
+        $user = SeparateConnectionUser::on('main')->create([
+            'name' => 'Aditya Darma',
+            'email' => 'a@b.c',
+            'password' => 'secret',
+        ]);
+
+        foreach (range(1, 5) as $i) {
+            DatabaseLogging::query()->insert([
+                'loggable_type' => SeparateConnectionUser::class,
+                'loggable_id' => $user->getKey(),
+                'host' => 'http://localhost',
+                'path' => "orders/$i",
+                'method' => 'POST',
+                'data' => '[]',
+                'request' => '[]',
+                'response' => '[]',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        DatabaseLogging::flushLoggableCache();
+
+        // Connection::listen() registers on the shared dispatcher, so the
+        // connection has to be filtered explicitly
+        $selects = 0;
+        DB::listen(function ($query) use (&$selects) {
+            if ($query->connectionName === 'main'
+                && str_starts_with(strtolower(trim($query->sql)), 'select')) {
+                $selects++;
+            }
+        });
+
+        foreach (DatabaseLogging::query()->get() as $log) {
+            $this->assertSame('Aditya Darma', $log->name);
+        }
+
+        $this->assertSame(1, $selects, 'the actor should be fetched once, not once per row');
+    }
+
+    public function test_viewer_pages_do_not_query_the_logging_database_for_users(): void
+    {
+        $user = SeparateConnectionUser::on('main')->create([
+            'name' => 'Aditya Darma',
+            'email' => 'a@b.c',
+            'password' => 'secret',
+        ]);
+
+        $this->actingAs($user);
+
+        $request = Request::create('/orders', 'POST', ['foo' => 'bar']);
+        $request->setUserResolver(fn () => $user);
+
+        LoggingData::reset();
+        LoggingData::request($request);
+        LoggingData::store($request, new Response('ok', 200));
+
+        DatabaseLogging::flushLoggableCache();
+
+        $this->get(config('database-logging.route_path'))->assertOk();
+        $this->getJson(config('database-logging.route_path') . '/datatable?draw=1&start=0&length=10')
+            ->assertOk()
+            ->assertJsonPath('data.0.user', 'Aditya Darma');
     }
 }

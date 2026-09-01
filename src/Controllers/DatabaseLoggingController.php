@@ -15,8 +15,9 @@ class DatabaseLoggingController extends Controller
     public function index(Request $request): View
     {
         // User
-        $data['users'] = DatabaseLogging::with(['loggable'])
+        $data['users'] = DatabaseLogging::query()
             ->select(['loggable_type', 'loggable_id'])
+            ->selectRaw('MAX(user_name) as user_name')
             ->groupBy(['loggable_type', 'loggable_id'])
             ->get();
 
@@ -78,7 +79,7 @@ class DatabaseLoggingController extends Controller
     public function datatable(Request $request): JsonResponse
     {
         $lastIndex = (int)$request->start;
-        $query =  DatabaseLogging::with(['loggable'])
+        $query = DatabaseLogging::query()
             ->when($request->user, function ($query) use ($request) {
                 $exp = explode('|', $request->user);
                 $query->where('loggable_type', $exp[0] !== '' ? $exp[0] : null);

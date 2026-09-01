@@ -61,9 +61,101 @@ class DatabaseLogging extends Model
         return $this->connection ?: config('database-logging.connection_logging');
     }
 
+    /**
+     * Memo of resolved actors, keyed by "type|id", so one user appearing on a
+     * whole page of log rows is only fetched once.
+     *
+     * @var array<string, Model|null>
+     */
+    protected static array $loggableCache = [];
+
+    /**
+     * WARNING: only usable when the logging connection is the same as the
+     * connection of the related model.
+     *
+     * Eloquent forces the related model onto the parent's connection whenever
+     * it does not declare one of its own (MorphTo::createModelByType), so with
+     * a separate logging database this relation looks for the users table
+     * *inside the logging database* and fails. Use resolveLoggable() instead,
+     * or eager load it only when both live on the same connection.
+     *
+     * @return MorphTo
+     */
     public function loggable(): MorphTo
     {
         return $this->morphTo('loggable');
+    }
+
+    /**
+     * Fetch the actor on its own connection.
+     *
+     * Deliberately does not go through the loggable() relation: building the
+     * query off a fresh instance of the related class lets that class resolve
+     * its own connection, which is the application default unless it declares
+     * something else.
+     *
+     * @return Model|null
+     */
+    public function resolveLoggable(): ?Model
+    {
+        if ($this->relationLoaded('loggable')) {
+            return $this->getRelation('loggable');
+        }
+
+        $class = static::loggableClass($this->loggable_type);
+
+        if ($class === null || $this->loggable_id === null) {
+            return null;
+        }
+
+        $cacheKey = $this->loggable_type . '|' . $this->loggable_id;
+
+        if (! array_key_exists($cacheKey, static::$loggableCache)) {
+            // keep the memo bounded: on a long running runtime this class
+            // stays in memory for the life of the worker
+            if (count(static::$loggableCache) > 1000) {
+                static::$loggableCache = [];
+            }
+
+            static::$loggableCache[$cacheKey] = (new $class)->newQuery()->find($this->loggable_id);
+        }
+
+        $model = static::$loggableCache[$cacheKey];
+
+        $this->setRelation('loggable', $model);
+
+        return $model;
+    }
+
+    /**
+     * Forget every memoised actor.
+     *
+     * @return void
+     */
+    public static function flushLoggableCache(): void
+    {
+        static::$loggableCache = [];
+    }
+
+    /**
+     * Map a stored loggable_type onto a usable model class.
+     *
+     * @param string|null $type
+     * @return class-string<Model>|null
+     */
+    protected static function loggableClass(?string $type): ?string
+    {
+        if (empty($type)) {
+            return null;
+        }
+
+        $class = Relation::getMorphedModel($type) ?? $type;
+
+        if (! is_string($class) || ! class_exists($class) || ! is_subclass_of($class, Model::class)) {
+            return null;
+        }
+
+        return $class;
     }
 
     /**
@@ -109,22 +201,18 @@ class DatabaseLogging extends Model
      */
     protected function nameFromLoggable(): ?string
     {
-        if (empty($this->loggable_type)) {
+        $class = static::loggableClass($this->loggable_type);
+
+        if ($class === null) {
             return null;
         }
-
-        $class = Relation::getMorphedModel($this->loggable_type) ?? $this->loggable_type;
 
         foreach ((array) config('database-logging.model', []) as $model => $column) {
             if ($this->loggable_type !== $model && $class !== $model) {
                 continue;
             }
 
-            if (! class_exists($class)) {
-                return null;
-            }
-
-            $value = $this->loggable?->getAttribute($column);
+            $value = $this->resolveLoggable()?->getAttribute($column);
 
             return is_scalar($value) ? (string) $value : null;
         }
