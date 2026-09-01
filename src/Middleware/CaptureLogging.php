@@ -18,11 +18,21 @@ class CaptureLogging
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // LoggingData keeps its state in static properties. On a long running
+        // runtime (Octane, RoadRunner, queue workers) those survive between
+        // requests, so without an explicit reset the previous request's
+        // queries and payload would leak into this log entry.
+        LoggingData::reset();
+
         LoggingData::request($request);
 
         $response = $next($request);
 
-        LoggingData::store($request, $response);
+        try {
+            LoggingData::store($request, $response);
+        } finally {
+            LoggingData::reset();
+        }
 
         return $response;
     }

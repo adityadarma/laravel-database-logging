@@ -43,7 +43,8 @@ class TestHelperTest extends TestCase
         $request = TestHelper::createMockRequest('POST', '/api/test', ['key' => 'value']);
 
         $this->assertEquals('POST', $request->method());
-        $this->assertEquals('/api/test', $request->path());
+        // Request::path() is always returned without a leading slash
+        $this->assertEquals('api/test', $request->path());
         $this->assertEquals('value', $request->input('key'));
     }
 

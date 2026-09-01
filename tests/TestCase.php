@@ -3,6 +3,7 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Tests;
 
 use AdityaDarma\LaravelDatabaseLogging\LaravelDatabaseLoggingServiceProvider;
+use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -15,6 +16,18 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        // LoggingData holds its state statically, and PHPUnit keeps the class
+        // loaded for the whole run, so state from the previous test (and from
+        // the migrations just executed) would otherwise bleed into this one.
+        LoggingData::reset();
+    }
+
+    protected function tearDown(): void
+    {
+        LoggingData::reset();
+
+        parent::tearDown();
     }
 
     protected function getPackageProviders($app): array

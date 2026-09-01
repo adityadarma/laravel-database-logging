@@ -1,4 +1,4 @@
-# Laravel Activity Logger
+# Laravel Database Logging
 
 [![Tests](https://github.com/adityadarma/laravel-database-logging/workflows/Tests/badge.svg)](https://github.com/adityadarma/laravel-database-logging/actions)
 [![Latest Stable Version](https://poser.pugx.org/adityadarma/laravel-database-logging/v/stable)](https://packagist.org/packages/adityadarma/laravel-database-logging)
@@ -36,10 +36,39 @@ Or you can variables to your `.env` file.
 Here are the `.env` file variables available:
 
 ```dotenv
-CONNECTION_LOGGING=mysql // remove if same connection
+DB_CONNECTION_LOGGING=logging # remove if same connection
 ENABLE_LOGGING=true
 QUERY_LOGGING=false
 DURATION_LOGGING=30
+```
+
+##### Separate logging database
+
+Point `DB_CONNECTION_LOGGING` at any connection defined in `config/database.php`.
+The `database_loggings` table is created on that connection, and the log rows
+keep their own copy of the actor name in `user_name`, so the dashboard renders
+correctly even though the logging database holds no `users` table.
+
+```php
+// config/database.php
+'connections' => [
+    'logging' => [
+        'driver' => 'mysql',
+        'host' => env('DB_LOGGING_HOST', '127.0.0.1'),
+        'database' => env('DB_LOGGING_DATABASE', 'logging'),
+        'username' => env('DB_LOGGING_USERNAME', 'forge'),
+        'password' => env('DB_LOGGING_PASSWORD', ''),
+        // ...
+    ],
+],
+```
+
+Which column holds the display name is set per model in `database-logging.php`:
+
+```php
+'model' => [
+    App\Models\User::class => 'name',
+],
 ```
 
 ### Usage

@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="mb-4">
-                    <form id="form-search" data-url="{{ config('database-logging.route_path') }}/datatable">
+                    <form id="form-search" data-url="{{ route('database-logging.datatable') }}">
                         <div class="row">
                             <div class="col-md-3">
                                 <label for="user">User</label>

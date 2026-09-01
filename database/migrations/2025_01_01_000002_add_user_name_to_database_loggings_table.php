@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
+     * Run the migration on the configured logging connection.
+     *
+     * @return string|null
+     */
+    public function getConnection(): ?string
+    {
+        return config('database-logging.connection_logging');
+    }
+
+    /**
      * Run the migrations.
      *
      * @return void

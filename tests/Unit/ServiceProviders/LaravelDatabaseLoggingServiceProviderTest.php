@@ -48,10 +48,10 @@ class LaravelDatabaseLoggingServiceProviderTest extends TestCase
             }
         }
 
+        // the package exposes exactly two endpoints: the viewer and its
+        // DataTables source
         $this->assertContains('database-logging.index', $routeNames);
-        $this->assertContains('database-logging.data', $routeNames);
-        $this->assertContains('database-logging.show', $routeNames);
-        $this->assertContains('database-logging.destroy', $routeNames);
+        $this->assertContains('database-logging.datatable', $routeNames);
     }
 
     public function test_views_are_loaded(): void

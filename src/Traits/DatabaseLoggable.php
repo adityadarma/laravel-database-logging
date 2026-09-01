@@ -2,11 +2,26 @@
 
 namespace AdityaDarma\LaravelDatabaseLogging\Traits;
 
+use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait DatabaseLoggable
 {
+    /**
+     * Log entries recorded while this model was the authenticated actor.
+     *
+     * Safe across connections: DatabaseLogging resolves the logging
+     * connection itself, so no join is ever built between the two databases.
+     *
+     * @return MorphMany
+     */
+    public function logs(): MorphMany
+    {
+        return $this->morphMany(DatabaseLogging::class, 'loggable');
+    }
+
     /**
      * Boot model
      *
@@ -62,7 +77,10 @@ trait DatabaseLoggable
         $result = [];
 
         foreach ($columns as $column) {
-            if (array_key_exists($column, config('database-logging.exclude_column_query_logging', []))) {
+            // the config is a list of column names, so it must be matched by
+            // value. array_key_exists() would compare against 0,1,2... and
+            // silently let password/token columns through.
+            if (in_array($column, (array) config('database-logging.exclude_column_query_logging', []), true)) {
                 continue;
             }
 

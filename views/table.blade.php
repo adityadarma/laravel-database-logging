@@ -9,13 +9,13 @@
                 <table class="table-borderless w-100" style="background-color: #454d55; border-color: #454d55; color: #ffffff">
                     <tbody>
                         <tr>
-                            <td class="fs-4"><b>Table :</b> {{ $data['table'] }}</td>
+                            <td class="fs-4"><b>Table :</b> {{ $data['table'] ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <td><b>Event :</b> {{ $data['event'] }}</td>
+                            <td><b>Event :</b> {{ $data['event'] ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <td><b>ID :</b> {{ $data['id'] }}</td>
+                            <td><b>ID :</b> {{ $data['id'] ?? '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -31,18 +31,20 @@
                     @if(isset($data['data']))
                         @foreach($data['data'] as $column)
                             <tr>
-                                <td>{{ $column['column'] }}</td>
+                                @php($old = $column['old'] ?? null)
+                                @php($new = $column['new'] ?? null)
+                                <td>{{ $column['column'] ?? '-' }}</td>
 
-                                @if (is_array($column['old']) || is_object($column['old']))
-                                    <td>{!! "<pre>". e(print_r($column['old'], true)) ."</pre>" !!}</td>
+                                @if (is_array($old) || is_object($old))
+                                    <td>{!! "<pre>". e(print_r($old, true)) ."</pre>" !!}</td>
                                 @else
-                                    <td>{{ $column['old'] }}</td>
+                                    <td>{{ $old }}</td>
                                 @endif
 
-                                @if (is_array($column['new']) || is_object($column['new']))
-                                    <td>{!! "<pre>". e(print_r($column['new'], true)) ."</pre>" !!}</td>
+                                @if (is_array($new) || is_object($new))
+                                    <td>{!! "<pre>". e(print_r($new, true)) ."</pre>" !!}</td>
                                 @else
-                                    <td>{{ $column['new'] }}</td>
+                                    <td>{{ $new }}</td>
                                 @endif
                             </tr>
                         @endforeach

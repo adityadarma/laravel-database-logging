@@ -4,17 +4,12 @@ namespace AdityaDarma\LaravelDatabaseLogging\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class DatabaseLogging extends Model
 {
-    /**
-     * The database connection that should be used by the model.
-     *
-     * @var string
-     */
-    protected $connection;
-
     /**
      * The table associated with the model.
      *
@@ -42,15 +37,6 @@ class DatabaseLogging extends Model
         'query',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected array $dates = [
-        'created_at',
-    ];
-
     protected $appends = [
         'name',
         'date_created'
@@ -63,11 +49,16 @@ class DatabaseLogging extends Model
         'query' => 'array',
     ];
 
-    public function __construct(array $attributes = [])
+    /**
+     * Resolve the connection lazily so the model always follows the
+     * configured logging connection, while still allowing an explicit
+     * setConnection() / on() call to win.
+     *
+     * @return string|null
+     */
+    public function getConnectionName(): ?string
     {
-        parent::__construct($attributes);
-
-        $this->connection = config('database-logging.connection_logging');
+        return $this->connection ?: config('database-logging.connection_logging');
     }
 
     public function loggable(): MorphTo
@@ -75,19 +66,70 @@ class DatabaseLogging extends Model
         return $this->morphTo('loggable');
     }
 
-    public function getNameAttribute(): string | null
+    /**
+     * Display name of the actor.
+     *
+     * Order of preference:
+     * 1. eager loaded loggable relation (always fresh)
+     * 2. the user_name snapshot stored on the log row
+     * 3. lazy loaded loggable relation
+     *
+     * @return string|null
+     */
+    public function getNameAttribute(): ?string
     {
         try {
-            foreach (config('database-logging.model') as $model => $name) {
-                if ($this->loggable_type === $model && config('database.default') === config('database-logging.connection_logging')) {
-                    return $this->loggable->$name ?? '';
+            if ($this->relationLoaded('loggable')) {
+                $name = $this->nameFromLoggable();
+
+                if ($name !== null && $name !== '') {
+                    return $name;
                 }
             }
-            return $this->user_name;
-        } catch (\Exception $e) {
+
+            if ($this->user_name !== null && $this->user_name !== '') {
+                return $this->user_name;
+            }
+
+            return $this->nameFromLoggable() ?? $this->user_name;
+        } catch (Throwable $e) {
             Log::error($e->getMessage());
+
             return $this->user_name;
         }
+    }
+
+    /**
+     * Read the configured name column from the related model.
+     *
+     * Works across database connections because the related model
+     * resolves its own connection.
+     *
+     * @return string|null
+     */
+    protected function nameFromLoggable(): ?string
+    {
+        if (empty($this->loggable_type)) {
+            return null;
+        }
+
+        $class = Relation::getMorphedModel($this->loggable_type) ?? $this->loggable_type;
+
+        foreach ((array) config('database-logging.model', []) as $model => $column) {
+            if ($this->loggable_type !== $model && $class !== $model) {
+                continue;
+            }
+
+            if (! class_exists($class)) {
+                return null;
+            }
+
+            $value = $this->loggable?->getAttribute($column);
+
+            return is_scalar($value) ? (string) $value : null;
+        }
+
+        return null;
     }
 
     public function getDateCreatedAttribute(): string
@@ -95,6 +137,7 @@ class DatabaseLogging extends Model
         if ($this->created_at) {
             return $this->created_at->format('d-m-Y H:i:s');
         }
+
         return '';
     }
 }

@@ -3,10 +3,10 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Controllers;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
-use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -21,45 +21,58 @@ class DatabaseLoggingController extends Controller
             ->get();
 
         // Table
-        $connection = config('database.default');
-        $tables = [];
-        switch ($connection) {
-            case 'mysql':
-            case 'mariadb':
-                $tables_in_db = DB::select("SHOW TABLES");
-                foreach ($tables_in_db as $table) {
-                    $tables[reset($table)] = ucwords(str_replace('_', ' ', reset($table)));
-                }
-                break;
-
-            case 'pgsql':
-                $tables_in_db = DB::select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'");
-                foreach ($tables_in_db as $table) {
-                    $tables[$table->tablename] = ucwords(str_replace('_', ' ', $table->tablename));
-                }
-                break;
-
-            case 'sqlsrv':
-                $tables_in_db = DB::select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
-                foreach ($tables_in_db as $table) {
-                    $tables[$table->TABLE_NAME] = ucwords(str_replace('_', ' ', $table->TABLE_NAME));
-                }
-                break;
-
-            case 'sqlite':
-                $tables_in_db = DB::select("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
-                foreach ($tables_in_db as $table) {
-                    $tables[$table->name] = ucwords(str_replace('_', ' ', $table->name));
-                }
-                break;
-
-            default:
-                throw new Exception("Database driver tidak didukung.");
-        }
+        $tables = $this->listTables();
         ksort($tables);
         $data['tables'] = $tables;
 
         return view('LaravelDatabaseLogging::index', $data);
+    }
+
+    /**
+     * List the tables of the application database.
+     *
+     * The logged table names come from the application connection, not the
+     * logging one, so this deliberately reads the default connection.
+     *
+     * @return array
+     * @throws Exception
+     */
+    protected function listTables(): array
+    {
+        $connection = DB::connection();
+
+        // getDriverName(), not the connection *name*: a connection may be
+        // called anything ("main", "tenant", ...) while still running MySQL.
+        $driver = $connection->getDriverName();
+
+        $names = match ($driver) {
+            'mysql', 'mariadb' => array_map(
+                // reset() on a stdClass is deprecated as of PHP 8.1, and the
+                // column of SHOW TABLES is named after the database
+                static fn ($row) => reset(((array) $row)) ?: null,
+                $connection->select('SHOW TABLES')
+            ),
+            'pgsql' => array_map(
+                static fn ($row) => ((array) $row)['tablename'] ?? null,
+                $connection->select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = current_schema()")
+            ),
+            'sqlsrv' => array_map(
+                static fn ($row) => ((array) $row)['TABLE_NAME'] ?? null,
+                $connection->select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
+            ),
+            'sqlite' => array_map(
+                static fn ($row) => ((array) $row)['name'] ?? null,
+                $connection->select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+            ),
+            default => throw new Exception("Database driver [$driver] tidak didukung."),
+        };
+
+        $tables = [];
+        foreach (array_filter($names) as $name) {
+            $tables[$name] = ucwords(str_replace('_', ' ', $name));
+        }
+
+        return $tables;
     }
 
     public function datatable(Request $request): JsonResponse
@@ -80,9 +93,13 @@ class DatabaseLoggingController extends Controller
         $data['draw'] = $request->draw;
         $data['recordsTotal'] = $query->count();
 
+        // dot notation: $request->search['value'] blows up when DataTables
+        // does not send the search parameter at all
+        $search = $request->input('search.value');
+
         $querySearch = $query
-            ->when($request->search['value'], function ($query) use ($request) {
-                $query->where('data', 'like', '%'.$request->search['value'].'%');
+            ->when($search, function ($query) use ($search) {
+                $query->where('data', 'like', '%'.$search.'%');
             });
         $data['recordsFiltered'] = $querySearch->count();
         $data['data'] = $querySearch
