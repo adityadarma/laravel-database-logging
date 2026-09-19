@@ -5,7 +5,7 @@ namespace AdityaDarma\LaravelDatabaseLogging\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\Log;
+use AdityaDarma\LaravelDatabaseLogging\Support\PackageLogger;
 use Throwable;
 
 class DatabaseLogging extends Model
@@ -185,7 +185,7 @@ class DatabaseLogging extends Model
 
             return $this->nameFromLoggable() ?? $this->user_name;
         } catch (Throwable $e) {
-            Log::error($e->getMessage());
+            PackageLogger::error($e);
 
             return $this->user_name;
         }

@@ -34,6 +34,14 @@ return [
         'PATCH',
         'DELETE',
     ],
+    'log' => [
+        'channel' => env('LOG_CHANNEL_LOGGING', 'database-logging'),
+        'driver' => 'daily',
+        'path' => storage_path('logs/database-logging.log'),
+        'level' => env('LOG_LEVEL_LOGGING', 'error'),
+        'days' => env('LOG_DAILY_DAYS_LOGGING', 14),
+        'replace_placeholders' => true,
+    ],
     'route_controller' => AdityaDarma\LaravelDatabaseLogging\Controllers\DatabaseLoggingController::class,
     'route_path' => '/database-logging',
     'duration' => env('DURATION_LOGGING', 30), // days

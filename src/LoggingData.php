@@ -6,7 +6,7 @@ use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use AdityaDarma\LaravelDatabaseLogging\Support\PackageLogger;
 use JsonException;
 
 class LoggingData
@@ -114,7 +114,7 @@ class LoggingData
                     ];
                 }
             } catch (Exception $e){
-                Log::error($e->getMessage());
+                PackageLogger::error($e);
             }
         }
     }
@@ -151,7 +151,7 @@ class LoggingData
                     'query' => self::$query,
                 ]);
             } catch (Exception $e){
-                Log::error($e->getMessage());
+                PackageLogger::error($e);
             }
         }
     }

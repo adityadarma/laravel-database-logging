@@ -34,6 +34,34 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the package log channel into logging.channels at runtime.
+     *
+     * Keeps the package self-contained: a host application never has to add a
+     * channel to config/logging.php. A channel already defined under the same
+     * name always wins.
+     *
+     * @return void
+     */
+    private function registerLogChannel(): void
+    {
+        $config = $this->app['config'];
+        $log = $config->get('database-logging.log', []);
+        $name = $log['channel'] ?? null;
+
+        if (empty($name)) {
+            return;
+        }
+
+        if ($config->has("logging.channels.{$name}")) {
+            return;
+        }
+
+        unset($log['channel']);
+
+        $config->set("logging.channels.{$name}", $log);
+    }
+
+    /**
      * @throws BindingResolutionException
      */
     private function registerMiddlewareAlias(): void
@@ -72,6 +100,12 @@ class LaravelDatabaseLoggingServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // deliberately in boot(), not register(): the channel definition has to
+        // be injected after every config source has settled, otherwise an
+        // application (or a test) overriding database-logging.log would be
+        // overwritten by this provider
+        $this->registerLogChannel();
+
         $this->loadMigrationsFrom([self::MIGRATION_PATH]);
 
         if ($this->app->runningInConsole()) {
