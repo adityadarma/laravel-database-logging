@@ -3,10 +3,13 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Tests\Unit;
 
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
+use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use AdityaDarma\LaravelDatabaseLogging\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class LoggingDataTest extends TestCase
 {
@@ -52,6 +55,36 @@ class LoggingDataTest extends TestCase
         $this->assertTrue(true); // Method executes without error
     }
 
+    public function test_request_method_captures_files_at_any_nesting_depth(): void
+    {
+        config(['database-logging.method' => ['POST']]);
+
+        $request = Request::create('/inspection', 'POST', [
+            'image_qc' => [
+                'front' => [
+                    ['note' => 'front image'],
+                ],
+            ],
+        ]);
+        $request->files->set('image_qc', [
+            'front' => [
+                ['file' => UploadedFile::fake()->create('front.jpg', 12, 'image/jpeg')],
+            ],
+            'rear' => UploadedFile::fake()->create('rear.png', 8, 'image/png'),
+        ]);
+
+        LoggingData::request($request);
+        LoggingData::store($request, new Response('ok', 200));
+
+        $payload = DatabaseLogging::query()->sole()->request;
+
+        $this->assertSame('front image', $payload['image_qc']['front'][0]['note']);
+        $this->assertSame('front.jpg', $payload['image_qc']['front'][0]['file']['name']);
+        $this->assertSame('image/jpeg', $payload['image_qc']['front'][0]['file']['mime_type']);
+        $this->assertSame('rear.png', $payload['image_qc']['rear']['name']);
+        $this->assertSame('image/png', $payload['image_qc']['rear']['mime_type']);
+    }
+
     public function test_store_method_saves_logging_data(): void
     {
         config(['database-logging.enable_logging' => true]);
@@ -80,6 +113,27 @@ class LoggingDataTest extends TestCase
 
         LoggingData::request($request);
         LoggingData::store($request, $response);
+
+        $this->assertDatabaseCount('database_loggings', 0);
+    }
+
+    public function test_store_error_is_logged_instead_of_thrown(): void
+    {
+        config(['database-logging.enable_logging' => true]);
+        config(['database-logging.method' => ['POST']]);
+
+        Log::shouldReceive('error')
+            ->once()
+            ->with('Cannot read response status', \Mockery::type('array'));
+
+        $response = new class {
+            public function getStatusCode(): int
+            {
+                throw new \Error('Cannot read response status');
+            }
+        };
+
+        LoggingData::store(Request::create('/test', 'POST'), $response);
 
         $this->assertDatabaseCount('database_loggings', 0);
     }

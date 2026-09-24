@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class LoggableUser extends Model
@@ -21,6 +22,27 @@ class LoggableUser extends Model
     protected $guarded = [];
 
     public $timestamps = false;
+}
+
+class BrokenLoggableUser extends LoggableUser
+{
+    protected $table = 'loggable_users';
+
+    public bool $failReadingOriginal = false;
+
+    public function getRawOriginal($key = null, $default = null)
+    {
+        if (! $this->failReadingOriginal) {
+            return parent::getRawOriginal($key, $default);
+        }
+
+        throw new \Error('Cannot read original attributes');
+    }
+
+    public function fireCreatedEvent(): mixed
+    {
+        return $this->fireModelEvent('created', false);
+    }
 }
 
 class DatabaseLoggableTest extends TestCase
@@ -83,5 +105,21 @@ class DatabaseLoggableTest extends TestCase
         $this->assertStringContainsString('name', $recorded);
         $this->assertStringNotContainsString('password', $recorded);
         $this->assertStringNotContainsString('super-secret', $recorded);
+    }
+
+    public function test_model_logging_error_does_not_break_model_event(): void
+    {
+        Log::shouldReceive('error')
+            ->once()
+            ->with('Cannot read original attributes', \Mockery::type('array'));
+
+        $model = new BrokenLoggableUser();
+        $model->setRawAttributes(['id' => 1, 'name' => 'Aditya'], true);
+        $model->failReadingOriginal = true;
+
+        $result = $model->fireCreatedEvent();
+
+        $this->assertNotFalse($result);
+        $this->assertSame([], LoggingData::getData());
     }
 }

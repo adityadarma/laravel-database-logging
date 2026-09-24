@@ -3,11 +3,11 @@
 namespace AdityaDarma\LaravelDatabaseLogging;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use AdityaDarma\LaravelDatabaseLogging\Support\PackageLogger;
-use JsonException;
+use Throwable;
 
 class LoggingData
 {
@@ -79,44 +79,55 @@ class LoggingData
      */
     public static function request(Request $request): void
     {
-        if (config('database-logging.enable_logging', true)) {
-            try {
-                $files = $request->allFiles();
-                $filesArray = [];
-                foreach ($files as $key => $file) {
-                    if (is_array($file)) {
-                        foreach ($file as $item) {
-                            $filesArray[$key][] = [
-                                'name' => $item->getClientOriginalName(),
-                                'size' => $item->getSize(),
-                                'mime_type' => $item->getMimeType(),
-                            ];
-                        }
-                    }
-                    else {
-                        $filesArray[$key] = [
-                            'name' => $file->getClientOriginalName(),
-                            'size' => $file->getSize(),
-                            'mime_type' => $file->getMimeType(),
-                        ];
-                    }
-                }
+        try {
+            if (! config('database-logging.enable_logging', true)) {
+                return;
+            }
 
-                self::$request = array_merge($request->except(['_token', '_method']), $filesArray);
+            $files = self::normalizeFiles($request->allFiles());
 
-                if ($guard = self::getGuard()) {
-                    $user = auth($guard)->user();
+            self::$request = array_replace_recursive(
+                $request->except(['_token', '_method']),
+                $files
+            );
 
-                    self::$user = [
-                        'id' => $user->getKey(),
-                        'class' => $user->getMorphClass(),
-                        'name' => self::resolveUserName($user),
-                    ];
-                }
-            } catch (Exception $e){
-                PackageLogger::error($e);
+            if ($guard = self::getGuard()) {
+                $user = auth($guard)->user();
+
+                self::$user = [
+                    'id' => $user->getKey(),
+                    'class' => $user->getMorphClass(),
+                    'name' => self::resolveUserName($user),
+                ];
+            }
+        } catch (Throwable $e) {
+            PackageLogger::error($e);
+        }
+    }
+
+    /**
+     * Replace uploaded files at any nesting depth with log-safe metadata.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private static function normalizeFiles(mixed $value): mixed
+    {
+        if ($value instanceof UploadedFile) {
+            return [
+                'name' => $value->getClientOriginalName(),
+                'size' => $value->getSize(),
+                'mime_type' => $value->getMimeType(),
+            ];
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = self::normalizeFiles($item);
             }
         }
+
+        return $value;
     }
 
     /**
@@ -125,34 +136,35 @@ class LoggingData
      * @param Request $request
      * @param $response
      * @return void
-     * @throws JsonException
      */
     public static function store(Request $request, $response): void
     {
-        if (
-            config('database-logging.enable_logging', true)
-            && in_array($request->method(), config('database-logging.method'), true)
-            && $response->getStatusCode() >= 200
-            && $response->getStatusCode() <= 299
-        ) {
-            try {
-                DatabaseLogging::create([
-                    'loggable_id' => self::$user['id'] ?? null,
-                    'loggable_type' => self::$user['class'] ?? null,
-                    'user_name' => self::$user['name'] ?? null,
-                    'host' => $request->getSchemeAndHttpHost(),
-                    'path' => $request->path(),
-                    'agent' => $request->userAgent(),
-                    'ip_address' => $request->ip(),
-                    'method' => $request->method(),
-                    'data' => self::$data,
-                    'request' => self::$request,
-                    'response' => $request->expectsJson() ? json_decode($response->getContent()) : [],
-                    'query' => self::$query,
-                ]);
-            } catch (Exception $e){
-                PackageLogger::error($e);
+        try {
+            if (
+                ! config('database-logging.enable_logging', true)
+                || ! in_array($request->method(), (array) config('database-logging.method', []), true)
+                || $response->getStatusCode() < 200
+                || $response->getStatusCode() > 299
+            ) {
+                return;
             }
+
+            DatabaseLogging::create([
+                'loggable_id' => self::$user['id'] ?? null,
+                'loggable_type' => self::$user['class'] ?? null,
+                'user_name' => self::$user['name'] ?? null,
+                'host' => $request->getSchemeAndHttpHost(),
+                'path' => $request->path(),
+                'agent' => $request->userAgent(),
+                'ip_address' => $request->ip(),
+                'method' => $request->method(),
+                'data' => self::$data,
+                'request' => self::$request,
+                'response' => $request->expectsJson() ? json_decode($response->getContent()) : [],
+                'query' => self::$query,
+            ]);
+        } catch (Throwable $e) {
+            PackageLogger::error($e);
         }
     }
 
@@ -206,7 +218,7 @@ class LoggingData
             $value = $user instanceof Model
                 ? $user->getAttribute($column)
                 : ($user->{$column} ?? null);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return null;
         }
 

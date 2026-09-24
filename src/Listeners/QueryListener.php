@@ -3,6 +3,7 @@
 namespace AdityaDarma\LaravelDatabaseLogging\Listeners;
 
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
+use AdityaDarma\LaravelDatabaseLogging\Support\PackageLogger;
 use BackedEnum;
 use DateTimeInterface;
 use Illuminate\Database\Connection;
@@ -15,14 +16,18 @@ class QueryListener
 {
     public function handle(QueryExecuted $event): void
     {
-        $sql = $event->sql;
-        $bindings = $event->bindings;
+        try {
+            $sql = $event->sql;
+            $bindings = $event->bindings;
 
-        if (config('database-logging.query_logging') && !$this->shouldExcludeQuery($sql)) {
-            LoggingData::setQuery([
-                'query' => $this->replaceBindings($sql, $bindings, $event->connection),
-                'time' => $event->time
-            ]);
+            if (config('database-logging.query_logging') && !$this->shouldExcludeQuery($sql)) {
+                LoggingData::setQuery([
+                    'query' => $this->replaceBindings($sql, $bindings, $event->connection),
+                    'time' => $event->time
+                ]);
+            }
+        } catch (Throwable $e) {
+            PackageLogger::error($e);
         }
     }
 

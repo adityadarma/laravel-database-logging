@@ -7,7 +7,9 @@ use AdityaDarma\LaravelDatabaseLogging\LoggingData;
 use AdityaDarma\LaravelDatabaseLogging\Tests\TestCase;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Mockery;
+use Stringable;
 
 class QueryListenerTest extends TestCase
 {
@@ -194,5 +196,32 @@ class QueryListenerTest extends TestCase
         $this->assertStringContainsString('"active" = 1', $query);
         $this->assertStringContainsString("'2026-08-31 09:30:00'", $query);
         $this->assertStringNotContainsString('?', $query);
+    }
+
+    public function test_binding_error_is_logged_instead_of_breaking_the_query(): void
+    {
+        config(['database-logging.query_logging' => true]);
+        config(['database-logging.exclude_table_query_logging' => []]);
+
+        Log::shouldReceive('error')
+            ->once()
+            ->with('Cannot convert binding to string', Mockery::type('array'));
+
+        $binding = new class implements Stringable {
+            public function __toString(): string
+            {
+                throw new \Error('Cannot convert binding to string');
+            }
+        };
+        $event = new QueryExecuted(
+            'select * from "users" where "value" = ?',
+            [$binding],
+            10,
+            DB::connection()
+        );
+
+        (new QueryListener())->handle($event);
+
+        $this->assertSame([], LoggingData::getQuery());
     }
 }

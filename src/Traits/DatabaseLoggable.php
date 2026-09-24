@@ -4,8 +4,10 @@ namespace AdityaDarma\LaravelDatabaseLogging\Traits;
 
 use AdityaDarma\LaravelDatabaseLogging\Models\DatabaseLogging;
 use AdityaDarma\LaravelDatabaseLogging\LoggingData;
+use AdityaDarma\LaravelDatabaseLogging\Support\PackageLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Throwable;
 
 trait DatabaseLoggable
 {
@@ -31,35 +33,34 @@ trait DatabaseLoggable
     {
         if (config('database-logging.log_events.create', false) && config('database-logging.enable_logging', true)) {
             static::created(function (Model $model) {
-                LoggingData::setData([
-                    'table' => $model->getTable(),
-                    'id' => $model->getKey(),
-                    'event' => 'create',
-                    'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'create')
-                ]);
+                static::captureDatabaseLog($model, 'create');
             });
         }
 
         if (config('database-logging.log_events.update', false) && config('database-logging.enable_logging', true)) {
             static::updated(function (Model $model) {
-                LoggingData::setData([
-                    'table' => $model->getTable(),
-                    'id' => $model->getKey(),
-                    'event' => 'update',
-                    'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'update')
-                ]);
+                static::captureDatabaseLog($model, 'update');
             });
         }
 
         if (config('database-logging.log_events.delete', false) && config('database-logging.enable_logging', true)) {
             static::deleted(function (Model $model) {
-                LoggingData::setData([
-                    'table' => $model->getTable(),
-                    'id' => $model->getKey(),
-                    'event' => 'delete',
-                    'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), 'delete')
-                ]);
+                static::captureDatabaseLog($model, 'delete');
             });
+        }
+    }
+
+    private static function captureDatabaseLog(Model $model, string $event): void
+    {
+        try {
+            LoggingData::setData([
+                'table' => $model->getTable(),
+                'id' => $model->getKey(),
+                'event' => $event,
+                'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), $event)
+            ]);
+        } catch (Throwable $e) {
+            PackageLogger::error($e);
         }
     }
 
