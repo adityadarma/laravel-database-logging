@@ -22,8 +22,12 @@ class DatabaseLoggingController extends Controller
             ->get();
 
         // Table
-        $tables = $this->listTables();
-        ksort($tables);
+        try {
+            $tables = $this->listTables();
+            ksort($tables);
+        } catch (\Throwable $e) {
+            $tables = [];
+        }
         $data['tables'] = $tables;
 
         return view('LaravelDatabaseLogging::index', $data);
@@ -106,11 +110,18 @@ class DatabaseLoggingController extends Controller
     public function datatable(Request $request): JsonResponse
     {
         $lastIndex = (int)$request->start;
+        $model = $request->input('model') ?: $request->input('table');
+        $modelId = $request->input('model_id') ?: $request->input('id');
+        $method = $request->input('method') ?: null;
+
         $query = DatabaseLogging::query()
             ->when($request->user, function ($query) use ($request) {
                 $exp = explode('|', $request->user);
                 $query->where('loggable_type', $exp[0] !== '' ? $exp[0] : null);
                 $query->where('loggable_id', $exp[1] !== '' ? $exp[1] : null);
+            })
+            ->when($method, function ($query) use ($method) {
+                $query->where('method', strtoupper($method));
             })
             ->when($request->start_date, function ($query) use ($request) {
                 $query->where('created_at', '>=', $request->start_date.' 00:00:00');
@@ -118,8 +129,57 @@ class DatabaseLoggingController extends Controller
             ->when($request->end_date, function ($query) use ($request) {
                 $query->where('created_at', '<=', $request->end_date.' 23:59:59');
             });
+
+
+        if ($model && $modelId !== null && $modelId !== '') {
+            $tableName = (is_string($model) && class_exists($model) && is_subclass_of($model, \Illuminate\Database\Eloquent\Model::class))
+                ? (new $model)->getTable()
+                : $model;
+
+            $escapedModel = is_string($model) ? str_replace('\\', '\\\\', $model) : $model;
+
+            $query->where(function ($q) use ($tableName, $escapedModel, $modelId) {
+                $q->where('data', 'like', '%"table":"' . $tableName . '","id":' . $modelId . ',%')
+                    ->orWhere('data', 'like', '%"table":"' . $tableName . '","id":' . $modelId . '}%')
+                    ->orWhere('data', 'like', '%"table":"' . $tableName . '","id":"' . $modelId . '"%')
+                    ->orWhere('data', 'like', '%"table": "' . $tableName . '", "id": ' . $modelId . ',%')
+                    ->orWhere('data', 'like', '%"table": "' . $tableName . '", "id": ' . $modelId . '}%')
+                    ->orWhere('data', 'like', '%"table": "' . $tableName . '", "id": "' . $modelId . '"%')
+                    ->orWhere('data', 'like', '%"id":' . $modelId . ',"table":"' . $tableName . '"%')
+                    ->orWhere('data', 'like', '%"id":"' . $modelId . '","table":"' . $tableName . '"%')
+                    ->orWhere('data', 'like', '%"model":"' . $escapedModel . '","id":' . $modelId . ',%')
+                    ->orWhere('data', 'like', '%"model":"' . $escapedModel . '","id":' . $modelId . '}%')
+                    ->orWhere('data', 'like', '%"model":"' . $escapedModel . '","id":"' . $modelId . '"%');
+            });
+        } elseif ($model) {
+            $tableName = (is_string($model) && class_exists($model) && is_subclass_of($model, \Illuminate\Database\Eloquent\Model::class))
+                ? (new $model)->getTable()
+                : $model;
+
+            $escapedModel = is_string($model) ? str_replace('\\', '\\\\', $model) : $model;
+
+            $query->where(function ($q) use ($tableName, $escapedModel) {
+                $q->where('data', 'like', '%"table":"' . $tableName . '"%')
+                    ->orWhere('data', 'like', '%"table": "' . $tableName . '"%');
+
+                if ($tableName !== $escapedModel) {
+                    $q->orWhere('data', 'like', '%"model":"' . $escapedModel . '"%')
+                        ->orWhere('data', 'like', '%"model": "' . $escapedModel . '"%');
+                }
+            });
+        } elseif ($modelId !== null && $modelId !== '') {
+            $query->where(function ($q) use ($modelId) {
+                $q->where('data', 'like', '%"id":' . $modelId . ',%')
+                    ->orWhere('data', 'like', '%"id":' . $modelId . '}%')
+                    ->orWhere('data', 'like', '%"id":"' . $modelId . '"%')
+                    ->orWhere('data', 'like', '%"id": ' . $modelId . ',%')
+                    ->orWhere('data', 'like', '%"id": ' . $modelId . '}%')
+                    ->orWhere('data', 'like', '%"id": "' . $modelId . '"%');
+            });
+        }
+
         $data['draw'] = $request->draw;
-        $data['recordsTotal'] = $query->count();
+        $data['recordsTotal'] = DatabaseLogging::query()->count();
 
         // dot notation: $request->search['value'] blows up when DataTables
         // does not send the search parameter at all
@@ -127,7 +187,13 @@ class DatabaseLoggingController extends Controller
 
         $querySearch = $query
             ->when($search, function ($query) use ($search) {
-                $query->where('data', 'like', '%'.$search.'%');
+                $query->where(function ($q) use ($search) {
+                    $q->where('data', 'like', '%' . $search . '%')
+                        ->orWhere('path', 'like', '%' . $search . '%')
+                        ->orWhere('user_name', 'like', '%' . $search . '%')
+                        ->orWhere('ip_address', 'like', '%' . $search . '%')
+                        ->orWhere('method', 'like', '%' . $search . '%');
+                });
             });
         $data['recordsFiltered'] = $querySearch->count();
         $data['data'] = $querySearch
@@ -137,32 +203,53 @@ class DatabaseLoggingController extends Controller
             ->get()
             ->map(function ($item) use (&$lastIndex) {
                 $lastIndex++;
-                $table =  view('LaravelDatabaseLogging::table', ['log' => $item])->render();
+
                 return [
                     'DT_RowIndex' => $lastIndex,
-                    'DT_RowAttr' => [
-                        'data-toggle' => "collapse",
-                        'data-target' => "#collapse$lastIndex",
-                        'aria-expanded' => "true",
-                        'aria-controls' => "collapse$lastIndex"
-                    ],
+                    'DT_RowId' => "row-{$item->id}",
+                    'id' => $item->id,
+                    'method' => strtoupper($item->method ?? 'GET'),
+                    'path' => $item->path ?? '/',
+                    'host' => $item->host ?? '',
                     'user' => $item->name,
-                    'content' => "
-                        <b>Date:</b> $item->date_created<br>
-                        <b>IP:</b> $item->ip_address<br>
-                        <b>Agent:</b> $item->agent<br>
-                        <b>Host:</b> $item->host<br>
-                        <b>Path:</b> $item->path<br>
-                        <b>Method:</b> $item->method<br>
-                        <table class='w-100'>
-                            <td colspan='5' id='collapse$lastIndex' class='collapse acc' data-parent=''#accordion'>
-                                $table
-                            </td>
-                        </table>
-                    ",
+                    'ip_address' => $item->ip_address ?? '-',
+                    'date' => $item->date_created ?: ($item->created_at ? $item->created_at->format('d-m-Y H:i:s') : '-'),
+                    'details' => view('LaravelDatabaseLogging::table', $this->formatDetailPayload($item, $item->id ?? $lastIndex))->render(),
                 ];
             });
 
         return response()->json($data);
+    }
+
+    /**
+     * Format payload for the detail drawer view.
+     *
+     * @param mixed $item
+     * @param int|string $rowId
+     * @return array
+     */
+    protected function formatDetailPayload($item, $rowId): array
+    {
+        $host = is_object($item) ? ($item->host ?? '-') : ($item['host'] ?? '-');
+        $path = is_object($item) ? ($item->path ?? '-') : ($item['path'] ?? '-');
+
+        return [
+            'log' => $item,
+            'uniqueId' => $rowId ?: (is_object($item) ? ($item->id ?? uniqid('log_')) : ($item['id'] ?? uniqid('log_'))),
+            'dataList' => (is_object($item) ? $item->data : ($item['data'] ?? [])) ?: [],
+            'requestData' => (is_object($item) ? $item->request : ($item['request'] ?? [])) ?: [],
+            'responseData' => (is_object($item) ? $item->response : ($item['response'] ?? [])) ?: [],
+            'queryList' => (is_object($item) ? $item->query : ($item['query'] ?? [])) ?: [],
+            'ip' => is_object($item) ? ($item->ip_address ?? '-') : ($item['ip_address'] ?? '-'),
+            'host' => $host,
+            'path' => $path,
+            'method' => strtoupper(is_object($item) ? ($item->method ?? 'GET') : ($item['method'] ?? 'GET')),
+            'userName' => is_object($item) ? ($item->name ?? null) : ($item['name'] ?? null),
+            'loggableType' => is_object($item) ? ($item->loggable_type ?? null) : ($item['loggable_type'] ?? null),
+            'loggableId' => is_object($item) ? ($item->loggable_id ?? null) : ($item['loggable_id'] ?? null),
+            'agent' => is_object($item) ? ($item->agent ?? '-') : ($item['agent'] ?? '-'),
+            'dateCreated' => is_object($item) ? ($item->date_created ?: ($item->created_at ? $item->created_at->format('d-m-Y H:i:s') : '-')) : ($item['date_created'] ?? ''),
+            'fullUrl' => rtrim($host, '/') . '/' . ltrim($path, '/'),
+        ];
     }
 }

@@ -120,4 +120,128 @@ class DatabaseLoggingControllerTest extends TestCase
         $response->assertJsonPath('recordsTotal', 2);
         $response->assertJsonPath('recordsFiltered', 1);
     }
+
+    public function test_datatable_filters_by_model(): void
+    {
+        TestHelper::createSampleLogging([
+            'data' => [['table' => 'orders', 'id' => 1, 'event' => 'create', 'data' => []]],
+        ]);
+        TestHelper::createSampleLogging([
+            'data' => [['table' => 'invoices', 'id' => 2, 'event' => 'update', 'data' => []]],
+        ]);
+
+        $response = $this->getJson(
+            config('database-logging.route_path') . '/datatable?draw=1&start=0&length=10&model=orders'
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('recordsTotal', 2);
+        $response->assertJsonPath('recordsFiltered', 1);
+    }
+
+    public function test_datatable_filters_by_model_id(): void
+    {
+        TestHelper::createSampleLogging([
+            'data' => [['table' => 'orders', 'id' => 10, 'event' => 'create', 'data' => []]],
+        ]);
+        TestHelper::createSampleLogging([
+            'data' => [['table' => 'orders', 'id' => 20, 'event' => 'update', 'data' => []]],
+        ]);
+
+        $response = $this->getJson(
+            config('database-logging.route_path') . '/datatable?draw=1&start=0&length=10&model_id=10'
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('recordsTotal', 2);
+        $response->assertJsonPath('recordsFiltered', 1);
+    }
+
+    public function test_datatable_filters_by_model_and_model_id(): void
+    {
+        // Log 1: orders with id 10, users with id 20
+        TestHelper::createSampleLogging([
+            'data' => [
+                ['table' => 'orders', 'id' => 10, 'event' => 'create', 'data' => []],
+                ['table' => 'users', 'id' => 20, 'event' => 'update', 'data' => []],
+            ],
+        ]);
+        // Log 2: orders with id 20, users with id 10
+        TestHelper::createSampleLogging([
+            'data' => [
+                ['table' => 'orders', 'id' => 20, 'event' => 'update', 'data' => []],
+                ['table' => 'users', 'id' => 10, 'event' => 'create', 'data' => []],
+            ],
+        ]);
+
+        // Search for orders with id 10
+        $response = $this->getJson(
+            config('database-logging.route_path') . '/datatable?draw=1&start=0&length=10&model=orders&model_id=10'
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('recordsTotal', 2);
+        $response->assertJsonPath('recordsFiltered', 1);
+    }
+
+    public function test_datatable_filters_by_http_method(): void
+    {
+        TestHelper::createSampleLogging(['method' => 'GET']);
+        TestHelper::createSampleLogging(['method' => 'POST']);
+
+        $response = $this->getJson(
+            config('database-logging.route_path') . '/datatable?draw=1&start=0&length=10&method=POST'
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('recordsTotal', 2);
+        $response->assertJsonPath('recordsFiltered', 1);
+    }
+
+    public function test_datatable_filters_by_uuid_model_id(): void
+    {
+        $uuid1 = 'a0000000-0000-0000-0000-000000000001';
+        $uuid2 = 'b0000000-0000-0000-0000-000000000002';
+
+        TestHelper::createSampleLogging([
+            'data' => [['table' => 'transactions', 'id' => $uuid1, 'event' => 'create', 'data' => []]],
+        ]);
+        TestHelper::createSampleLogging([
+            'data' => [['table' => 'transactions', 'id' => $uuid2, 'event' => 'update', 'data' => []]],
+        ]);
+
+        $response = $this->getJson(
+            config('database-logging.route_path') . "/datatable?draw=1&start=0&length=10&model=transactions&model_id={$uuid1}"
+        );
+
+        $response->assertOk();
+        $response->assertJsonPath('recordsTotal', 2);
+        $response->assertJsonPath('recordsFiltered', 1);
+    }
+
+    public function test_index_view_renders_successfully(): void
+    {
+        TestHelper::createFullLogging();
+
+        $response = $this->get(config('database-logging.route_path'));
+
+        $response->assertOk();
+        $response->assertSee('Database Logging');
+        $response->assertSee('Model / Table');
+        $response->assertSee('Model ID');
+    }
+
+    public function test_datatable_renders_detail_view_with_full_data(): void
+    {
+        TestHelper::createFullLogging();
+
+        $response = $this->getJson(config('database-logging.route_path') . '/datatable?draw=1&start=0&length=10');
+
+        $response->assertOk();
+        $response->assertJsonPath('recordsTotal', 1);
+        $this->assertNotEmpty($response->json('data.0.details'));
+        $this->assertStringContainsString('Model Changes', $response->json('data.0.details'));
+        $this->assertStringContainsString('Request', $response->json('data.0.details'));
+        $this->assertStringContainsString('Response', $response->json('data.0.details'));
+    }
 }

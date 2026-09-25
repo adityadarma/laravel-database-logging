@@ -56,6 +56,7 @@ trait DatabaseLoggable
             LoggingData::setData([
                 'table' => $model->getTable(),
                 'id' => $model->getKey(),
+                'model' => $model::class,
                 'event' => $event,
                 'data' => static::getDifferentData($model->getRawOriginal(), $model->getAttributes(), $event)
             ]);
