@@ -221,12 +221,12 @@
             }
 
             .select2-container .select2-selection--single {
+                position: relative !important;
                 height: 38px !important;
                 background-color: #f8fafc !important;
                 border: 1px solid var(--color-border-input) !important;
                 border-radius: var(--radius-control) !important;
-                display: flex !important;
-                align-items: center !important;
+                display: block !important;
                 transition: all 0.15s ease-in-out !important;
             }
 
@@ -246,39 +246,66 @@
             .select2-container .select2-selection--single .select2-selection__rendered {
                 color: var(--color-text-title) !important;
                 font-size: 0.85rem !important;
-                line-height: normal !important;
+                line-height: 36px !important;
                 padding-left: 0.75rem !important;
-                padding-right: 1.75rem !important;
+                padding-right: 48px !important;
+                display: block !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            .select2-container .select2-selection--single .select2-selection__placeholder {
+                color: #94a3b8 !important;
+                font-weight: 400 !important;
+            }
+
+            .select2-container .select2-selection--single .select2-selection__clear {
+                position: absolute !important;
+                right: 26px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                float: none !important;
+                font-size: 1.15rem !important;
+                line-height: 1 !important;
+                color: #94a3b8 !important;
+                margin: 0 !important;
+                padding: 2px 4px !important;
+                cursor: pointer !important;
+                z-index: 2 !important;
+                transition: color 0.15s ease !important;
+            }
+
+            .select2-container .select2-selection--single .select2-selection__clear:hover {
+                color: #ef4444 !important;
             }
 
             .select2-container .select2-selection--single .select2-selection__arrow {
-                height: 36px !important;
+                position: absolute !important;
+                height: 100% !important;
                 right: 8px !important;
                 top: 0 !important;
+                width: 18px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
             }
 
             .select2-container .select2-selection--single .select2-selection__arrow b {
-                border-color: #64748b transparent transparent transparent !important;
-                border-width: 5px 4px 0 4px !important;
+                border: none !important;
+                margin: 0 !important;
+                position: static !important;
+                width: 7px !important;
+                height: 7px !important;
+                border-right: 1.5px solid #64748b !important;
+                border-bottom: 1.5px solid #64748b !important;
+                transform: rotate(45deg) translateY(-2px) !important;
+                transition: transform 0.15s ease, border-color 0.15s ease !important;
             }
 
             .select2-container--open .select2-selection--single .select2-selection__arrow b {
-                border-color: transparent transparent #64748b transparent !important;
-                border-width: 0 4px 5px 4px !important;
-            }
-
-            .select2-container .select2-selection--single .select2-selection__clear {
-                font-size: 1.1rem !important;
-                color: #94a3b8 !important;
-                margin-right: 18px !important;
-                line-height: 36px !important;
-            }
-
-            .select2-container .select2-selection--single .select2-selection__clear:hover {
-                color: #ef4444 !important;
+                border-color: var(--color-primary) !important;
+                transform: rotate(-135deg) translateY(-2px) !important;
             }
 
             .select2-dropdown {
